@@ -176,6 +176,7 @@ details ul{margin:10px 0 0;padding-left:1.2em;display:grid;gap:6px;font-size:14p
 <div class="sheet" id="sheet" hidden><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
 
 <script src="episodes.js"></script>
+<script src="idols.js"></script>
 <script>
 /* ===== データ ===== */
 const GROUPS = [
@@ -269,12 +270,17 @@ const ROSTER=(()=>{
   });
   return out;
 })();
-function odds(mode){
-  const w=ROSTER.map(o=>PICK_MODES[mode].w(o.fol)), sum=w.reduce((a,b)=>a+b,0);
-  return ROSTER.map((o,i)=>({o,p:w[i]/sum})).sort((a,b)=>b.p-a.p);
+/* 掲載依頼で追加した実在アイドル（idols.js）。許可のある人だけが入る */
+const LISTED=(window.LISTED_IDOLS||[]).filter(o=>o&&o.name&&o.group&&o.fol>0).map(o=>({
+  type:"アイドル", big:false, genre:"—", city:"—", toku:"—", color:"—", hex:"#cccccc", ...o,
+  bday:o.bday?o.bday-1:undefined, real:true}));
+const pool=src=>src==="real"?ROSTER.concat(LISTED):ROSTER;
+function odds(mode,src){
+  const list=pool(src), w=list.map(o=>PICK_MODES[mode].w(o.fol)), sum=w.reduce((a,b)=>a+b,0);
+  return list.map((o,i)=>({o,p:w[i]/sum})).sort((a,b)=>b.p-a.p);
 }
-function drawOshi(mode,exclude){
-  const list=odds(mode).filter(x=>x.o!==exclude), sum=list.reduce((a,x)=>a+x.p,0);
+function drawOshi(mode,src,exclude){
+  const list=odds(mode,src).filter(x=>x.o!==exclude), sum=list.reduce((a,x)=>a+x.p,0);
   let v=Math.random()*sum;
   for(const x of list){ v-=x.p; if(v<=0) return x.o; }
   return list[list.length-1].o;
@@ -301,6 +307,9 @@ function title(){
       <div><label id="mode-l">推しの決まり方</label><div class="seg" role="group" aria-labelledby="mode-l" id="mode">
         ${Object.entries(PICK_MODES).map(([k,m],i)=>`<button type="button" data-v="${k}" aria-pressed="${i===0}">${m.label}</button>`).join("")}</div>
         <p class="fine" id="mode-d" style="margin-top:4px"></p></div>
+      ${LISTED.length?`<div><label id="src-l">推しの候補</label><div class="seg" role="group" aria-labelledby="src-l" id="src">
+        <button type="button" data-v="fic" aria-pressed="true">架空のアイドルだけ</button><button type="button" data-v="real" aria-pressed="false">掲載中の実在アイドルも</button></div>
+        <p class="fine" style="margin-top:4px">実在のアイドル${LISTED.length}人は、本人または運営からの掲載依頼で載っています。</p></div>`:""}
     </div>
     <div class="rank" id="rank"></div>
     <div class="row"><button class="btn" id="go">沼に落ちる</button></div>
@@ -315,21 +324,23 @@ function title(){
         <li>途中で一時停止や早送りができます。</li>
       </ul>
     </details>
+    <p class="fine"><a href="about.html">このサイトについて（掲載のご依頼・削除のご依頼・プライバシー）</a></p>
   </div>`;
-  let spd=3, mode="follow";
+  let spd=3, mode="follow", src="fic";
   app.querySelectorAll("#spd button").forEach(b=>b.onclick=()=>{spd=+b.dataset.v;app.querySelectorAll("#spd button").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   const showRank=()=>{
-    const list=odds(mode), top=list.slice(0,8), rest=list.slice(8).reduce((a,x)=>a+x.p,0), max=top[0].p;
+    const list=odds(mode,src), top=list.slice(0,8), rest=list.slice(8).reduce((a,x)=>a+x.p,0), max=top[0].p;
     document.getElementById("mode-d").textContent=PICK_MODES[mode].desc+"。";
-    document.getElementById("rank").innerHTML=`<h3>いま沼に落ちるとしたら</h3><p class="fine">${esc(PICK_MODES[mode].label)}で推しが決まる場合（アイドルはすべて架空です）</p>
-      ${top.map(x=>`<div class="r"><span><span class="mc" style="background:${x.o.hex}"></span>${esc(x.o.name)}<small>${esc(x.o.group)}</small></span><span class="nbar"><i style="width:${(x.p/max*100).toFixed(1)}%"></i></span><em>${pct(x.p)}</em></div>`).join("")}
+    document.getElementById("rank").innerHTML=`<h3>いま沼に落ちるとしたら</h3><p class="fine">${esc(PICK_MODES[mode].label)}で推しが決まる場合（${src==="real"?"★は掲載依頼で載っている実在のアイドル、ほかは架空です":"アイドルはすべて架空です"}）</p>
+      ${top.map(x=>`<div class="r"><span><span class="mc" style="background:${x.o.hex}"></span>${x.o.real?"★":""}${esc(x.o.name)}<small>${esc(x.o.group)}</small></span><span class="nbar"><i style="width:${(x.p/max*100).toFixed(1)}%"></i></span><em>${pct(x.p)}</em></div>`).join("")}
       <div class="r other"><span>その他${list.length-top.length}人</span><span></span><em>${pct(rest)}</em></div>`;
   };
   app.querySelectorAll("#mode button").forEach(b=>b.onclick=()=>{mode=b.dataset.v;app.querySelectorAll("#mode button").forEach(x=>x.setAttribute("aria-pressed",x===b));showRank()});
+  app.querySelectorAll("#src button").forEach(b=>b.onclick=()=>{src=b.dataset.v;app.querySelectorAll("#src button").forEach(x=>x.setAttribute("aria-pressed",x===b));showRank()});
   showRank();
   document.getElementById("go").onclick=()=>{
     const y=+document.getElementById("start").value, a=+document.getElementById("age").value;
-    S={name:document.getElementById("name").value.trim()||"タカシ", startYear:y, startAge:a, spd, mode, rate:1,
+    S={name:document.getElementById("name").value.trim()||"タカシ", startYear:y, startAge:a, spd, mode, src, rate:1,
        m:-1, acc:0, money:30, clean:45, shin:50, wota:10, sara:0, heat:10, love:0,
        job:rnd(JOBS), home:rnd(PREFS),
        oshi:null, has:false, lossUntil:0, fallCount:0, oshiHist:[], stubs:[], focus:"look", plan:[], epQueue:shuffle(window.EPISODES.map((_,i)=>i)),
@@ -408,14 +419,14 @@ function graduate(){
 function lossDay(){
   const old=S.oshi;
   if(Math.random()<.45){ log(rnd(["推しロスで、何をしても楽しくない。",`${old.name}の写真フォルダを開いては閉じた。`,"現場のない週末が、こんなに長いとは知らなかった。",`${old.color}のペンライトを引き出しの奥にしまった。`])); return; }
-  log(fillC(rnd(ENCOUNTERS),rnd(ROSTER.filter(o=>o!==old))));
+  log(fillC(rnd(ENCOUNTERS),rnd(pool(S.src).filter(o=>o!==old))));
 }
 /* 整列 → 入場券の「お目当て」が回って止まる → 沼落ち届 */
 function numaDraw(){
-  const prev=S.oshiHist[S.oshiHist.length-1], o=drawOshi(S.mode,prev);
+  const prev=S.oshiHist[S.oshiHist.length-1], o=drawOshi(S.mode,S.src,prev);
   const no=40+Math.floor(Math.random()*260);
   const t={y:year(), m:mon(), venue:rnd(VENUES), ev:rnd(EVENTS), no:"A-"+no};
-  const reel=shuffle(ROSTER.filter(x=>x!==o)).slice(0,9);
+  const reel=shuffle(pool(S.src).filter(x=>x!==o)).slice(0,9);
   openSheet(`
    <div class="entry" id="entry">
      <p class="call">整列<b id="call">A${Math.max(1,no-26)}〜${no-1}番の方</b></p>
@@ -443,24 +454,26 @@ function numaDraw(){
 function todoke(o,t,prev){
   if(card.querySelector(".todoke")) return;
   const again=S.fallCount>0, nth=S.fallCount+1;
-  const p=odds(S.mode).find(x=>x.o===o).p;
+  const p=odds(S.mode,S.src).find(x=>x.o===o).p;
   const serial=`OSHI-${t.y}-${String(Math.floor(Math.random()*1e7)).padStart(7,"0")}`;
   const lead=again?`${prev.name}の卒業から${S.m-S.gradM}か月。`:"";
-  const peers=shuffle(PEERS).slice(0,3).map(n=>({n, o:drawOshi(S.mode), age:19+Math.floor(Math.random()*27), job:rnd(JOBS), pref:rnd(PREFS)}));
+  const peers=shuffle(PEERS).slice(0,3).map(n=>({n, o:drawOshi(S.mode,S.src), age:19+Math.floor(Math.random()*27), job:rnd(JOBS), pref:rnd(PREFS)}));
   const facts=[["推し",o.name],["所属",o.group],["担当カラー",`<span class="mc" style="background:${o.hex}"></span>${esc(o.color)}`,true],
-    ["特典会",o.toku],["SNSフォロワー",folText(o.fol)+"（架空）"],["誕生日",`${o.bday+1}月${o.bdd}日`],
+    ["特典会",o.toku],["Xフォロワー",folText(o.fol)+(o.real?"（掲載時点）":"（架空）")],["誕生日",o.bday===undefined?"—":`${o.bday+1}月${o.bdd?o.bdd+"日":""}`],
     ["活動拠点",o.city],["ジャンル",o.genre],["沼落ちの確率",pct(p)]];
+  const note=o.real?"この推しは、本人または運営からの掲載依頼で載っている実在のアイドルです。ゲーム内のできごとと場面はすべてフィクションで、本人とは関係ありません。"
+    :"このゲームはフィクションです。この推しとグループは架空の存在です。";
   openSheet(`
    <div class="todoke" style="--mc:${o.hex}">
      <header><span>沼落ち届</span><small>No. ${serial}</small></header>
      <div class="body">
-       <span class="stamp" aria-hidden="true">${again?`${nth}度目<br>の沼`:"架空<br>推し"}</span>
+       <span class="stamp" aria-hidden="true">${again?`${nth}度目<br>の沼`:o.real?"実在<br>推し":"架空<br>推し"}</span>
        <div class="who"><small>オタク名</small><b>${esc(S.name)}</b></div>
        <p>${esc(lead)}${t.y}年${t.m}月、${esc(t.venue)}で行われた${esc(t.ev)}で、${esc(o.group)}の${esc(o.name)}に沼落ちしました。${age()}歳の${esc(S.job)}、${esc(S.home)}在住です。</p>
        <dl class="facts">${facts.map(([k,v,raw])=>`<div><dt>${k}</dt><dd>${raw?v:esc(v)}</dd></div>`).join("")}</dl>
        <div class="peers"><h4>同じ月に、別の現場で沼に落ちた人たち</h4>
          <ul>${peers.map(x=>`<li>${esc(x.n)}　<b>${esc(x.o.group)}の${esc(x.o.name)}</b> <small>推し ・ ${x.age}歳・${esc(x.job)}・${esc(x.pref)}</small></li>`).join("")}</ul></div>
-       <p class="fine">「${again?"また推していく":"オタク人生を始める"}」を押すと、入場券がもぎられます。半券は最後まで手元に残ります。このゲームはフィクションです。推しもグループも、すべて架空の存在です。</p>
+       <p class="fine">「${again?"また推していく":"オタク人生を始める"}」を押すと、入場券がもぎられます。半券は最後まで手元に残ります。${esc(note)}</p>
      </div>
    </div>
    <div class="row"><button class="btn" id="ok">${again?"また推していく":"オタク人生を始める"}</button><button class="btn ghost" id="redo">推しを選び直す</button></div>`);
