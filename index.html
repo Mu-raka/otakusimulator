@@ -2,92 +2,125 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>女ヲタヲタシミュレータ</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap">
 <style>
-/* Layout: one narrow column like a phone screen; a ticket-stub scene header, live meters, narration, choices, reaction bubbles */
+/* Layout: one column like a phone; status header (year, oshi, meters), speed controls, live timeline log; choices open as a sheet over the log */
 :root{
   --bg:#f4f0f8; --paper:#ffffff; --ink:#2a2136; --muted:#6c6278; --line:#ddd3e8;
   --pink:#d6336f; --pink-soft:#fbe3ec; --sky:#1b7fa3; --sky-soft:#dff0f6;
-  --warn:#c25a00; --danger:#c0262d; --ok:#2a8a4a;
+  --warn:#c25a00; --danger:#c0262d; --ok:#2a8a4a; --gold:#a8790a; --scrim:rgba(30,20,40,.45);
   --f-display:"DotGothic16",ui-monospace,monospace;
   --f-body:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
+  color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#1a1422; --paper:#251d31; --ink:#f1eaf7; --muted:#a99dba; --line:#3a2f49;
   --pink:#ff7aa8; --pink-soft:#3d2234; --sky:#6cc7e6; --sky-soft:#1c3340;
-  --warn:#f0a050; --danger:#ff6a6f; --ok:#6fd38f; color-scheme:dark}}
+  --warn:#f0a050; --danger:#ff6a6f; --ok:#6fd38f; --gold:#f2c75c; --scrim:rgba(0,0,0,.6); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#1a1422; --paper:#251d31; --ink:#f1eaf7; --muted:#a99dba; --line:#3a2f49;
   --pink:#ff7aa8; --pink-soft:#3d2234; --sky:#6cc7e6; --sky-soft:#1c3340;
-  --warn:#f0a050; --danger:#ff6a6f; --ok:#6fd38f; color-scheme:dark}
+  --warn:#f0a050; --danger:#ff6a6f; --ok:#6fd38f; --gold:#f2c75c; --scrim:rgba(0,0,0,.6); color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75;
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
-.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+[hidden]{display:none!important}
+.wrap{max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;line-height:1.3}
 p{margin:0}
 button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
-.panel{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:20px}
-/* title */
+button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px}
 .logo{font-family:var(--f-display);font-size:clamp(30px,8vw,44px);line-height:1.15;color:var(--pink)}
 .logo small{display:block;font-size:.42em;color:var(--muted);letter-spacing:.08em;margin-top:6px}
-.lead{color:var(--ink)}
 .notice{font-size:13px;color:var(--muted);border-left:3px solid var(--sky);padding-left:10px}
+.form{display:grid;gap:12px}
 label{font-size:13px;color:var(--muted);display:block;margin-bottom:4px}
-input[type=text]{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+input[type=text],select{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1 1 0;min-width:72px;border:1.5px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 6px;font-size:14px}
+.seg button[aria-pressed="true"]{border-color:var(--pink);background:var(--pink-soft);color:var(--pink);font-weight:700}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:12px 24px;background:var(--pink);color:#fff;font-weight:700;font-size:16px}
 .btn:hover{filter:brightness(1.07)}
 .btn.ghost{background:transparent;color:var(--pink);border:1.5px solid var(--pink)}
-.row{display:flex;flex-wrap:wrap;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 details{border-top:1px dashed var(--line);padding-top:12px}
 summary{cursor:pointer;font-weight:700}
 details ul{margin:10px 0 0;padding-left:1.2em;display:grid;gap:6px;font-size:14px}
-/* hud */
-.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.meter{display:flex;flex-direction:column;gap:4px;min-width:0}
-.meter b{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--muted);display:flex;justify-content:space-between}
+/* game header */
+.top{display:grid;gap:12px}
+.clock{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.clock .yr{font-family:var(--f-display);font-size:24px}
+.clock .age{color:var(--muted);font-size:13px}
+.yearbar{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+.yearbar i{display:block;height:100%;background:var(--pink);width:0}
+.oshi{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--bg)}
+.oshi .dot{width:34px;height:34px;border-radius:50%;flex:0 0 auto;border:2px solid var(--paper);box-shadow:0 0 0 1.5px var(--line)}
+.oshi div{min-width:0}
+.oshi small{display:block;font-size:11px;color:var(--muted);letter-spacing:.06em}
+.oshi b{font-size:15px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 12px}
+.meter{display:flex;flex-direction:column;gap:3px;min-width:0}
+.meter b{font-size:12px;font-weight:700;color:var(--muted);display:flex;justify-content:space-between;gap:4px}
 .meter b span{font-variant-numeric:tabular-nums;color:var(--ink)}
-.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
-.bar i{display:block;height:100%;width:0;transition:width .5s ease}
-.m-kou i{background:var(--ok)} .m-hiki i{background:var(--danger)} .m-sara i{background:var(--warn)}
-/* ticket */
+.bar{height:7px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;transition:width .4s ease}
+.m-clean i{background:var(--sky)} .m-shin i{background:var(--ok)} .m-wota i{background:var(--danger)}
+.m-sara i{background:var(--warn)} .m-heat i{background:var(--pink)} .m-love i{background:var(--gold)}
+.money{font-variant-numeric:tabular-nums}
+.ctrl{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ctrl button{border:1.5px solid var(--line);background:var(--paper);border-radius:999px;padding:4px 12px;font-size:13px}
+.ctrl button[aria-pressed="true"]{border-color:var(--pink);color:var(--pink);font-weight:700}
+.ctrl .focus{margin-left:auto;font-size:12px;color:var(--muted)}
+/* log */
+.log{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.log li{display:grid;grid-template-columns:5.2em 1fr;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.log li time{font-family:var(--f-display);color:var(--muted);font-size:12px;padding-top:2px}
+.log li.y{border-bottom:0;padding-top:16px}
+.log li.y span{font-family:var(--f-display);color:var(--pink)}
+.log li.ep span{color:var(--danger)} .log li.good span{color:var(--ok)} .log li.big span{font-weight:700}
+.log li.new{animation:fade .35s ease}
+/* sheet */
+.sheet{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;z-index:20;
+  padding:0 max(0px,env(safe-area-inset-right,0px)) 0 max(0px,env(safe-area-inset-left,0px))}
+.sheet .card{background:var(--paper);width:100%;max-width:600px;max-height:88%;overflow:auto;border-radius:16px 16px 0 0;
+  padding:20px max(16px,env(safe-area-inset-left,0px)) calc(24px + env(safe-area-inset-bottom,0px));display:grid;gap:12px;animation:up .3s ease}
+@media (min-width:640px){.sheet{align-items:center}.sheet .card{border-radius:16px;max-height:85%}}
 .ticket{display:flex;border:1.5px dashed var(--pink);border-radius:8px;overflow:hidden;background:var(--pink-soft)}
-.ticket .no{font-family:var(--f-display);padding:10px 14px;border-right:1.5px dashed var(--pink);color:var(--pink);font-size:13px;line-height:1.3;text-align:center;flex:0 0 auto}
-.ticket .no strong{display:block;font-size:22px;font-weight:400}
-.ticket .place{padding:10px 14px;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.ticket .no{font-family:var(--f-display);padding:8px 12px;border-right:1.5px dashed var(--pink);color:var(--pink);font-size:12px;line-height:1.3;text-align:center;flex:0 0 auto}
+.ticket .no strong{display:block;font-size:18px;font-weight:400}
+.ticket .place{padding:8px 12px;display:flex;flex-direction:column;justify-content:center;min-width:0}
 .ticket .place small{font-size:11px;letter-spacing:.12em;color:var(--muted)}
 .ticket .place span{font-weight:700}
-.talk{display:grid;gap:10px}
-.talk p:first-child::before{content:"▼ エピソードトーク";display:block;font-family:var(--f-display);font-size:12px;color:var(--sky);margin-bottom:4px}
-.choices{display:grid;gap:10px}
-.choice{text-align:left;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+.ticket.love{border-color:var(--gold);background:transparent}.ticket.love .no{color:var(--gold);border-color:var(--gold)}
+.ticket.year{border-color:var(--sky);background:var(--sky-soft)}.ticket.year .no{color:var(--sky);border-color:var(--sky)}
+.talk{display:grid;gap:8px}
+.choices{display:grid;gap:8px}
+.choice{text-align:left;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;display:flex;gap:10px;align-items:flex-start}
 .choice:hover{border-color:var(--pink);background:var(--pink-soft)}
 .choice .key{font-family:var(--f-display);color:var(--pink);flex:0 0 auto}
-/* result */
-.bubble{border-radius:14px;padding:12px 14px;position:relative}
-.say{background:var(--sky-soft)}
-.say::before{content:"ミナ";display:block;font-size:12px;font-weight:700;color:var(--sky)}
-.inner{background:var(--pink-soft);border:1.5px dashed var(--pink)}
-.inner::before{content:"ミナの心の声";display:block;font-size:12px;font-weight:700;color:var(--pink)}
+.choice small{display:block;color:var(--muted);font-size:12px}
+.bubble{border-radius:14px;padding:10px 13px}
+.bubble small{display:block;font-size:12px;font-weight:700}
+.say{background:var(--sky-soft)} .say small{color:var(--sky)}
+.inner{background:var(--pink-soft);border:1.5px dashed var(--pink)} .inner small{color:var(--pink)}
 .deltas{display:flex;flex-wrap:wrap;gap:6px;font-size:13px;font-weight:700}
-.chip{border-radius:999px;padding:2px 10px;border:1px solid currentColor;font-variant-numeric:tabular-nums}
-.c-kou{color:var(--ok)} .c-hiki{color:var(--danger)} .c-sara{color:var(--warn)}
-.event{border:1.5px solid var(--sky);background:var(--sky-soft);border-radius:10px;padding:14px}
-.event h3{font-size:14px;color:var(--sky);margin-bottom:4px}
+.chip{border-radius:999px;padding:1px 10px;border:1px solid currentColor;font-variant-numeric:tabular-nums}
+.c-ok{color:var(--ok)} .c-bad{color:var(--danger)} .c-warn{color:var(--warn)} .c-sky{color:var(--sky)}
 /* ending */
 .end-tag{font-family:var(--f-display);font-size:13px;letter-spacing:.1em;color:var(--muted)}
 .end-title{font-size:clamp(28px,7vw,38px)}
-.bad .end-title{color:var(--danger)} .good .end-title{color:var(--ok)} .mid .end-title{color:var(--warn)}
-.stamp{display:inline-block;font-family:var(--f-display);border:2px solid currentColor;border-radius:6px;padding:2px 10px;transform:rotate(-4deg);font-size:13px}
+.bad .end-title{color:var(--danger)} .good .end-title{color:var(--ok)} .mid .end-title{color:var(--warn)} .best .end-title{color:var(--gold)}
 .diag{display:grid;gap:4px;padding:12px 14px;background:var(--bg);border-radius:8px}
 .diag strong{font-family:var(--f-display);font-weight:400;font-size:20px}
-.log{display:grid;gap:6px;font-size:13px;color:var(--muted);margin:0;padding-left:1.4em}
-.log li.bad{color:var(--danger)}
+.hist{display:grid;gap:4px;font-size:13px;margin:0;padding:0;list-style:none}
+.hist li{display:grid;grid-template-columns:4.4em 1fr;gap:8px}
+.hist li time{font-family:var(--f-display);color:var(--muted)}
 .collect{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .collect div{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;min-width:0}
 .collect div.got{border-color:var(--pink)}
@@ -95,229 +128,378 @@ details ul{margin:10px 0 0;padding-left:1.2em;display:grid;gap:6px;font-size:14p
 .collect div.locked{color:var(--muted)}
 .fade{animation:fade .35s ease}
 @keyframes fade{from{opacity:.2;transform:translateY(6px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.fade{animation:none}.bar i{transition:none}}
-@media (max-width:420px){.hud{gap:8px}.meter b{font-size:11px}}
+@keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.fade,.log li.new,.sheet .card{animation:none}.bar i{transition:none}}
+@media (max-width:420px){.stats{gap:8px}.meter b{font-size:11px}}
 </style>
 </head>
 <body>
-
 <div class="wrap" id="app"></div>
+<div class="sheet" id="sheet" hidden><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
 
+<script src="episodes.js"></script>
 <script>
-const OSHI = "星宮りりあ";
-const EPISODES = [
- {place:"物販列・開場2時間前", talk:[
-   `推しの${OSHI}の生誕祭。物販列に並んでいると、前の女の子がりりあのメンカラのピンクのラババンを付けている。ひとりで来ているらしい。`,
-   "オタク仲間が欲しい。女の子に話しかけるのは久しぶりだ。"],
-  choices:[
-   {t:"「りりあ推しですか？僕もです」と一言だけ声をかけ、すぐ前を向く。",k:12,h:0,s:0,say:"「あ、そうなんです！生誕楽しみですね」",inner:"さらっとしてて話しやすい人だな。"},
-   {t:"「いつから推してるの？俺は研究生時代からだけど」と古参アピールを続ける。",k:-5,h:18,s:0,say:"「あ……最近です……」",inner:"なんで物販列で面接されてるんだろう。"},
-   {t:"肩をトントンと叩いて「ねえ、ひとり？」と聞く。",k:-8,h:25,s:5,say:"（一歩下がって会釈だけされた）",inner:"物販列でナンパ？逃げ場ないんだけど。"}]},
- {place:"終演後のロビー", talk:[
-   "「よかったら繋がりませんか？」という流れで、SNSを交換することになった。",
-   "ミナさんのアカウントは推し語りと現場レポが中心だ。"],
-  choices:[
-   {t:"相互フォローして「今日はありがとうございました」と一言だけ送る。",k:12,h:0,s:0,say:"「こちらこそ！また現場で」",inner:"普通にいい人そう。"},
-   {t:"その夜、3年分の過去の投稿を遡って全部にいいねを押す。",k:-5,h:20,s:5,say:"（返信はない）",inner:"深夜2時に3年前の投稿にいいね？通知が止まらなくてこわい。"},
-   {t:"彼女の自撮りだけ保存して「この服、今日も着てたよね」とリプする。",k:-10,h:25,s:10,say:"「あはは……」",inner:"服まで覚えてるの？鍵かけようかな。"}]},
- {place:"翌日・自宅", talk:[
-   "ミナさんから「昨日の生誕、最高でしたね！」とDMが来た。",
-   "返信のチャンスだ。"],
-  choices:[
-   {t:"「最高でした！アンコールのりりあの涙、泣きましたね」と推しの話で返す。",k:12,h:0,s:0,say:"「わかります！あそこ一生忘れない」",inner:"同担と感想言い合えるの楽しい。"},
-   {t:"「ミナちゃんと話せたのが一番の思い出だよ」と返す。",k:-5,h:12,s:0,say:"「え、りりあの話しましょうよ笑」",inner:"推しの話をしてたんだけどな。"},
-   {t:"既読がつくまで5通連投。最後は「既読ついてるよね？」",k:-10,h:25,s:12,say:"「仕事中でした、すみません」",inner:"昼休みに見たら通知5件。スクショしてオタ友のグループに貼っとこ。"}]},
- {place:"定期公演後のファミレス", talk:[
-   "オタク仲間数人で感想戦。ミナさんが「りりあの今日のMC、成長を感じて泣けた」と熱く語っている。"],
-  choices:[
-   {t:"「わかる、あのMC良かったよね」と相槌を打ち、彼女の話を最後まで聞く。",k:15,h:0,s:0,say:"「そうなの！それでね……」",inner:"ちゃんと聞いてくれるの嬉しい。"},
-   {t:"「女の子にはわからないと思うけど、りりあの本当の良さは」と30分語る。",k:-10,h:15,s:5,say:"「へえ……」",inner:"女の子にはわからないって何？私の方が現場数多いけど。"},
-   {t:"「でも正直、りりあよりミナちゃんの方がかわいくない？」とみんなの前で言う。",k:-10,h:22,s:10,say:"「いや、りりあが一番です」",inner:"推しを下げて私を上げるの最悪。しかもみんなの前で。"}]},
- {place:"開演前・会場の外", talk:[
-   "会場の前でミナさんを見つけた。女の子の友達と楽しそうに話している。"],
-  choices:[
-   {t:"手を振って挨拶だけして、自分の整理番号の場所に向かう。",k:10,h:0,s:0,say:"（手を振り返してくれた）",inner:"距離感ちょうどいいな。"},
-   {t:"「ミナ！」と突然呼び捨てで割り込み、友達そっちのけで話し始める。",k:-5,h:15,s:5,say:"「あ、どうも……」",inner:"いつから呼び捨て？友達に「誰？」って顔された。"},
-   {t:"彼女の後ろで、話が終わるのを黙ってずっと待つ。",k:-5,h:20,s:10,say:"「……いつからいました？」",inner:"後ろにずっといたの、気づいてたよ。"}]},
- {place:"遠征公演の開演前", talk:[
-   "プロフィールによると、ミナさんの誕生日は来週らしい。"],
-  choices:[
-   {t:"SNSで「誕生日おめでとうございます！」と一言送る。",k:10,h:0,s:0,say:"「ありがとうございます！」",inner:"覚えててくれたんだ、嬉しい。"},
-   {t:"手作りのクッキーと便箋3枚の手紙を手渡しする。",k:-5,h:15,s:0,say:"「わ、ありがとうございます……」",inner:"重い。手作りはちょっと食べるの怖い。"},
-   {t:"りりあとおそろいのネックレスを「俺たちの分」と2つ用意し、1つ渡す。",k:-10,h:25,s:10,say:"「え、受け取れないです」",inner:"「俺たち」って誰と誰？"}]},
- {place:"物販の待ち時間", talk:[
-   "雑談が途切れた。何か話題を探さないと。"],
-  choices:[
-   {t:"次のツアーのセトリ予想の話をする。",k:12,h:0,s:0,say:"「絶対あの曲やると思う！」",inner:"この人とのセトリ予想、楽しい。"},
-   {t:"「ミナちゃんって彼氏いるの？」と聞く。",k:-5,h:15,s:0,say:"「そういうの、ちょっと……」",inner:"現場でこれ聞かれるの何回目だろう。"},
-   {t:"彼女と仲の良い男性オタクに「ミナちゃんに近づかないで」とDMする。",k:-10,h:20,s:20,say:"「〇〇さんに変なDM送りました？」",inner:"本人から聞いた。私、誰のものでもないんだけど。"}]},
- {place:"大阪公演の前日", talk:[
-   "ミナさんも大阪公演に遠征すると投稿している。"],
-  choices:[
-   {t:"「大阪楽しみですね！会場で会えたら」とリプする。",k:10,h:0,s:0,say:"「会えたら感想戦しましょう！」",inner:"遠征仲間がいると心強い。"},
-   {t:"「新幹線何時？隣の席取っとくよ」とDMする。",k:-5,h:18,s:5,say:"「一人でゆっくり行くので大丈夫です」",inner:"移動くらい一人にさせて。"},
-   {t:"投稿写真の背景から泊まる場所を割り出し「近くに宿取ったよ」と報告する。",k:-20,h:35,s:20,ban:true,say:"（返信はない）",inner:"特定された？本気で怖い。運営に相談しよう。"}]},
- {place:"終演後・フラスタ前", talk:[
-   "推しのフラワースタンドの前で、みんな写真を撮っている。"],
-  choices:[
-   {t:"「撮りましょうか？」と、彼女のスマホでフラスタと一緒に撮ってあげる。",k:12,h:0,s:0,say:"「ありがとうございます！めっちゃ盛れてる」",inner:"気が利く人だな。"},
-   {t:"「ツーショット撮ろう」と肩を組もうとする。",k:-10,h:20,s:5,say:"「あ、自撮りは苦手で……」",inner:"近い近い近い。"},
-   {t:"遠くからミナさんを撮影し「今日のミナちゃん」とSNSに上げる。",k:-20,h:30,s:25,ban:true,say:"「消してください。今すぐ」",inner:"盗撮？しかも名前まで出して。運営に通報する。"}]},
- {place:"ツアーファイナル終演後", talk:[
-   "ツアーが終わった。ミナさんと一緒に会場を出る。",
-   "最後に何か言っておきたい。"],
-  choices:[
-   {t:"「次のツアーも楽しみましょう、また現場で！」と駅で解散する。",k:15,h:0,s:0,say:"「はい！また感想戦しましょう」",inner:"いいオタ友ができたな。"},
-   {t:"「りりあを卒業して、俺を推してくれない？」と告白する。",k:-10,h:20,s:10,say:"「りりあは卒業しません」",inner:"推しと自分を同じ土俵に乗せないで。"},
-   {t:"解散したふりをして、同じ電車の隣の車両にこっそり乗る。",k:-20,h:35,s:15,ban:true,say:"（気づかれて、駅員さんに声をかけられた）",inner:"つけられてた。もう無理。"}]}
+/* ===== データ ===== */
+const GROUPS = [
+ {g:"Lumière☆Days", type:"地下アイドル", big:false},
+ {g:"放課後プリズム", type:"ライブアイドル", big:false},
+ {g:"月白坂", type:"大所帯グループ", big:true},
+ {g:"TOKIMEKI STATION", type:"劇場型アイドル", big:true},
+ {g:"ひよこ組", type:"歌って踊れる系", big:false},
+ {g:"NOVA:LINE", type:"K-POP系", big:true},
+ {g:"ねこみみ☆ぱらだいす", type:"コンカフェ系ユニット", big:false},
+ {g:"ミルキー・アーカイブ", type:"声優ユニット", big:true}
 ];
-
-const EVENTS = [
- {when:s=>s.sara>=35, title:"界隈の噂", text:"女オタの鍵垢で「物販列にいるあの男の人、気をつけて」という投稿が回っているらしい。", d:{sara:10}},
- {when:s=>s.hiki>=40, title:"タイムラインの異変", text:"ミナさんの投稿が急に流れてこなくなった。ミュートされたのかもしれない。", d:{kou:-5}},
- {when:s=>s.kou>=45 && s.hiki<15, title:"ミナさんの投稿", text:"ミナさんが「最近、感想戦できるオタ友ができて楽しい」と投稿していた。", d:{kou:5}},
- {when:()=>true, title:"推しが尊い", text:`${OSHI}がブログで「いつも来てくれる皆さん、ありがとう」と書いていた。今日も推しが尊い。`, d:{}},
- {when:()=>true, title:"当落発表", text:"次のツアーのチケットに当選した！現場が決まった。", d:{}},
- {when:()=>true, title:"運営からのお知らせ", text:"公式から「ファン同士のつきまとい・盗撮・迷惑行為は入場禁止の対象です」と告知が出た。", d:{}}
-];
-const EVENT_AFTER = [2,5,7]; // 0-based episode index after which an event happens
+const NAMES = ["りりあ","みゆ","ひなの","さき","ゆな","ここあ","まりん","あやね","すず","かのん","めい","ちひろ","るな","ののか","あいり"];
+const COLORS = [["ピンク","#ff6fa5"],["水色","#5cc8f0"],["黄色","#f5cd2e"],["紫","#9b6be0"],["赤","#ef4f4f"],["緑","#4cc47a"],["オレンジ","#ff9b3d"],["白","#f4f4f4"]];
+const HERS = ["ミナ","サキ","ユイ","マホ","アヤ","リコ","ナツ","ハル","モモ"];
+const FOCUS = {
+ oshi:{label:"推し活に全振り", desc:"現場に通い詰める。お金と清潔感は減りやすい", money:-6, clean:-1.2, shin:0, heat:2.5},
+ look:{label:"身だしなみを整える", desc:"美容院・服・スキンケア。清潔感が上がる", money:-3, clean:2.6, shin:0, heat:-.3},
+ work:{label:"仕事をがんばる", desc:"現場は減るがお金が増える", money:5, clean:.2, shin:.2, heat:-1.2},
+ people:{label:"人間関係を広げる", desc:"オタク以外の友人とも過ごす。紳士度が少し上がる", money:-2, clean:.6, shin:1, heat:-.5}
+};
+const LINES = {
+ any:["{oshi}のブログを3回読み返した。","仕事帰りに{group}のMVを見て元気をもらった。","チェキ会で{oshi}に名前を覚えてもらえた（気がする）。","物販でランダム缶バッジを10個買ったが、{oshi}は出なかった。","定期公演に参戦。{oshi}のソロパートで泣いた。","オタ友と終演後のファミレスで感想戦。","配信を見ながら寝落ちした。","{oshi}の新ビジュアルが解禁された。全オタクが沸いた。","給料日。チケット代で半分消えた。","{group}の新曲のフォーメーションで{oshi}がセンター寄りに。","握手会で「いつもありがとう」と言われた。3日はこれで生きられる。","ペンライトの電池を買いだめした。"],
+ oshi:["遠征で3都市を回った。","同じCDを20枚買った。","全通した。財布が軽い。","{oshi}のアクスタと一緒に旅行に行った。","現場のために有休を使い切った。"],
+ look:["美容院で初めて「おまかせで」と言ってみた。","服をいつもと違う店で買ってみた。","スキンケアを始めた。肌の調子がいい。","部屋を掃除して、現場服を洗濯した。","眉毛を整えてもらった。オタ友に「なんか変わった？」と言われた。"],
+ work:["残業続きで現場に行けなかった。","昇給した。推しに還元したい。","大きな案件をやり切った。","仕事帰りに配信だけは欠かさず見た。"],
+ people:["オタク以外の友達と飲みに行った。","職場の飲み会に参加した。意外と楽しい。","オタ友の相談に乗った。","地元の友達の結婚式に出た。"],
+ dirty:["3日同じTシャツで現場に行った。","汗だくのまま物販列に並んだ。周りが少し離れた気がする。","髪を半年切っていない。"]
+};
+const ERA = {
+ 2011:"震災の年。チャリティーライブが各地で開かれた。",
+ 2013:"アイドル戦国時代。毎週どこかでフェスがある。",
+ 2020:"新型コロナの影響で、ライブが次々と中止に。配信ライブの時代へ。",
+ 2021:"声出し禁止の現場。拍手とペンライトで想いを伝える。",
+ 2023:"声出しが解禁！久しぶりにコールができた。",
+ 2026:"「推し活」が当たり前の言葉になった。"
+};
+const MAX_YEARS = 15;
 
 const ENDINGS = [
- {id:"ban", tone:"bad", title:"出禁END", rarity:"★★☆", test:s=>s.ban,
-  text:"ミナさんが運営に相談し、あなたには「今後の公演への入場をお断りします」という通知が届いた。推しのりりあにも、もう会えない。",
-  lesson:"つきまとい、特定、盗撮は「ヲタヲタ」の範囲を超えた迷惑行為です。運営は本気で対応します。"},
- {id:"sarashi", tone:"bad", title:"晒されEND", rarity:"★★☆", test:s=>s.sara>=55,
-  text:"あなたのDMやリプのスクショが「現場にいるヤバい男オタク」として拡散された。引用で界隈中に回り、アカウントも特定済み。現場に行くと視線が刺さる。",
-  lesson:"女オタク同士の情報共有は速い。一人に送ったつもりの言葉も、みんなが見ています。"},
- {id:"block", tone:"bad", title:"ブロックEND", rarity:"★☆☆", test:s=>s.hiki>=60,
-  text:"ある日、ミナさんのアカウントが見られなくなった。現場で目が合っても、すっと逸らされる。",
-  lesson:"「仲良くなりたい」が一方通行だと、相手には「怖い」としか伝わりません。"},
- {id:"fade", tone:"mid", title:"既読スルーEND", rarity:"★☆☆", test:s=>s.hiki>=20,
-  text:"嫌われてはいない、と思う。でも現場で会っても会釈だけ。DMの返信は少しずつ遅くなり、やがて途絶えた。",
-  lesson:"ちょっとした距離感のズレも積み重なります。あと一歩引けていれば。"},
- {id:"best", tone:"good", title:"最強の同担END", rarity:"★★★", test:s=>s.hiki===0 && s.kou>=110,
-  text:"ミナさんから「次のツアー、連番しませんか？」と誘われた。恋愛ではないけれど、推し活の最高の相棒ができた。",
-  lesson:"相手を「女の子」ではなく「同じ推しを好きなオタク」として見る。それだけで現場はもっと楽しくなります。"},
- {id:"friend", tone:"good", title:"良きオタ友END", rarity:"★★☆", test:()=>true,
-  text:"現場で会えば感想戦をする、ちょうどいい距離のオタ友になった。推しも楽しい、現場も楽しい。",
-  lesson:"相手の推し活を邪魔しないことが、いちばん好かれる近道でした。"}
+ {id:"marry", tone:"best", title:"結婚あがり", rarity:"★★★"},
+ {id:"ban", tone:"bad", title:"出禁END", rarity:"★★☆"},
+ {id:"sarashi", tone:"bad", title:"界隈追放END", rarity:"★★☆"},
+ {id:"oji", tone:"bad", title:"ヲタヲタおじEND", rarity:"★☆☆"},
+ {id:"almost", tone:"mid", title:"清潔感あと一歩END", rarity:"★★☆"},
+ {id:"solo", tone:"good", title:"推しと生きるEND", rarity:"★☆☆"}
 ];
 
+/* ===== 状態 ===== */
 const app = document.getElementById("app");
-let S;
+const sheet = document.getElementById("sheet"), card = document.getElementById("card");
+let S = null, timer = null, last = 0;
 const clamp=v=>Math.max(0,Math.min(100,v));
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-function loadSeen(){try{return JSON.parse(localStorage.getItem("wotawota-seen")||"[]")}catch(e){return[]}}
-function saveSeen(id){try{const s=new Set(loadSeen());s.add(id);localStorage.setItem("wotawota-seen",JSON.stringify([...s]))}catch(e){}}
+function fill(t,her){return String(t).replaceAll("{oshi}",S.oshi.name).replaceAll("{group}",S.oshi.group).replaceAll("{color}",S.oshi.color).replaceAll("{her}",her||"")}
+function loadSeen(){try{return JSON.parse(localStorage.getItem("wotawota2-seen")||"[]")}catch(e){return[]}}
+function saveSeen(id){try{const s=new Set(loadSeen());s.add(id);localStorage.setItem("wotawota2-seen",JSON.stringify([...s]))}catch(e){}}
 
+function pickOshi(exclude){
+  let g, n;
+  do{ g=rnd(GROUPS); n=rnd(NAMES); }while(exclude && exclude.name===n && exclude.group===g.g);
+  const c=rnd(COLORS);
+  return {group:g.g, type:g.type, big:g.big, name:n, color:c[0], hex:c[1], bday:Math.floor(Math.random()*12)};
+}
+
+/* ===== タイトル ===== */
 function title(){
+  stop();
   const seen=loadSeen();
+  const years=[2010,2013,2016,2020,2023,2026];
   app.innerHTML=`
   <div class="panel fade" style="display:grid;gap:16px">
-    <h1 class="logo">女ヲタヲタ<br>シミュレータ<small>〜現場の距離感ゲーム〜</small></h1>
-    <p class="lead">あなたはアイドル「${OSHI}」を推す男性オタク。現場で出会った同担の女性オタク・ミナさんと、どんな関係になれるでしょうか。</p>
-    <p class="notice">「女ヲタヲタ」行動を選ぶほどミナさんはドン引きし、出禁や晒しのバッドエンドへ向かいます。まともな距離感を守れば、良いオタ友になれます。</p>
-    <div><label for="name">あなたの名前</label><input id="name" type="text" maxlength="12" value="タカシ"></div>
-    <div class="row"><button class="btn" id="start">現場へ行く</button></div>
-    <p style="font-size:13px;color:var(--muted)">エンディング ${seen.length} / ${ENDINGS.length} 種 回収済み</p>
+    <h1 class="logo">女ヲタヲタ<br>シミュレータ<small>〜あるドルオタの15年〜</small></h1>
+    <p>あなたは男性のアイドルオタク。推しはランダムで決まります。時間は勝手に流れ、年に2〜3回、現場で「女ヲタヲタ」な場面が訪れます。</p>
+    <p class="notice">距離感・紳士な態度・清潔感がそろえば、いつか大切な人と出会って結婚であがり。ヲタヲタ行動を重ねると、出禁や界隈追放が待っています。</p>
+    <div class="form">
+      <div><label for="name">あなたの名前</label><input id="name" type="text" maxlength="12" value="タカシ"></div>
+      <div><label for="start">オタクを始める年</label><select id="start">${years.map(y=>`<option value="${y}" ${y===2016?"selected":""}>${y}年${ERA[y]?"":""}</option>`).join("")}</select></div>
+      <div><label for="age">そのときの年齢</label><select id="age">${[18,20,22,25,28,30,35].map(a=>`<option value="${a}" ${a===22?"selected":""}>${a}歳</option>`).join("")}</select></div>
+      <div><label id="spd-l">1年が過ぎる速さ</label><div class="seg" role="group" aria-labelledby="spd-l" id="spd">
+        <button type="button" data-v="3" aria-pressed="true">3分で1年</button><button type="button" data-v="6" aria-pressed="false">6分で1年</button><button type="button" data-v="9" aria-pressed="false">9分で1年</button></div></div>
+    </div>
+    <div class="row"><button class="btn" id="go">オタクになる</button></div>
+    <p style="font-size:13px;color:var(--muted)">エンディング ${seen.length} / ${ENDINGS.length} 種 回収済み ・ ヲタヲタエピソード ${window.EPISODES.length} 話収録</p>
     <details>
-      <summary>流行りのシミュレータから取り入れたこと</summary>
+      <summary>あそびかた</summary>
       <ul>
-        <li><b>短いエピソードと二択三択</b>：1/80人生シミュレータ系のように、1場面ずつ読んでタップで選ぶだけ。1周5分ほど。</li>
-        <li><b>パラメータの可視化</b>：アイドルオタクシミュレータ系の「お金・体力・推し度」の代わりに、好感度・ドン引き度・晒され度が選択ごとに動きます。</li>
-        <li><b>ランダムイベント</b>：途中で状態に応じた出来事が起き、同じ選び方でも展開が少し変わります。</li>
-        <li><b>マルチエンディングと回収</b>：6種類のエンディングと出現しやすさ。回収状況はこのブラウザに保存されます。</li>
-        <li><b>結果シェア</b>：最後に診断結果をコピーしてSNSに貼れます。</li>
+        <li>年のはじめに「今年の重点」を選びます。身だしなみに力を入れると清潔感が上がります。</li>
+        <li>年に2〜3回、女性オタクとの場面で行動を選びます。距離感のある行動は紳士度が上がり、ヲタヲタな行動はヲタヲタ度と晒され度が上がります。</li>
+        <li>ヲタヲタ度が低く、紳士度と清潔感が高いと、出会いが訪れます。交際からプロポーズまで進めば結婚であがりです。</li>
+        <li>途中で一時停止や早送りができます。</li>
       </ul>
     </details>
   </div>`;
-  document.getElementById("start").onclick=()=>{
-    const n=document.getElementById("name").value.trim()||"タカシ";
-    S={name:n,kou:30,hiki:0,sara:0,ban:false,i:0,log:[]};
-    episode();
+  let spd=3;
+  app.querySelectorAll("#spd button").forEach(b=>b.onclick=()=>{spd=+b.dataset.v;app.querySelectorAll("#spd button").forEach(x=>x.setAttribute("aria-pressed",x===b))});
+  document.getElementById("go").onclick=()=>{
+    const y=+document.getElementById("start").value, a=+document.getElementById("age").value;
+    S={name:document.getElementById("name").value.trim()||"タカシ", startYear:y, startAge:a, spd, rate:1,
+       m:-1, acc:0, money:30, clean:45, shin:50, wota:10, sara:0, heat:60, love:0,
+       oshi:pickOshi(), oshiHist:[], focus:"oshi", plan:[], epQueue:shuffle(window.EPISODES.map((_,i)=>i)),
+       rel:{stage:0, her:"", tried:-9}, log:[], hist:[], counts:{good:0,bad:0}, ended:false, queue:[]};
+    S.oshiHist.push(S.oshi);
+    game();
+    addHist(`${S.oshi.group}の${S.oshi.name}（${S.oshi.color}）推しになる`);
+    tick(true);
+    start();
   };
 }
 
-function hud(){
-  const m=(cls,lab,v)=>`<div class="meter ${cls}"><b>${lab}<span>${v}</span></b><div class="bar"><i style="width:${v}%"></i></div></div>`;
-  return `<div class="hud">${m("m-kou","好感度",S.kou)}${m("m-hiki","ドン引き度",S.hiki)}${m("m-sara","晒され度",S.sara)}</div>`;
+/* ===== 時間 ===== */
+const monthMs=()=>S.spd*60000/12;
+function start(){ stop(); last=performance.now(); timer=setInterval(loop,200); }
+function stop(){ if(timer){clearInterval(timer);timer=null} }
+function loop(){
+  const now=performance.now(), dt=now-last; last=now;
+  if(S.ended || S.queue.length || S.rate===0) return;
+  S.acc+=dt*S.rate;
+  if(S.acc>=monthMs()){ S.acc=0; tick(); }
+  const yb=document.getElementById("yb");
+  if(yb) yb.style.width=(((S.m%12)+S.acc/monthMs())/12*100).toFixed(1)+"%";
 }
+const year=()=>S.startYear+Math.floor(S.m/12);
+const age=()=>S.startAge+Math.floor(S.m/12);
+const mon=()=>S.m%12+1;
 
-function episode(){
-  const ep=EPISODES[S.i];
-  const opts=shuffle(ep.choices.map((c,idx)=>({...c,idx})));
-  app.innerHTML=`${hud()}
-  <div class="ticket fade"><div class="no">SCENE<strong>${String(S.i+1).padStart(2,"0")}</strong>/ ${EPISODES.length}</div>
-    <div class="place"><small>LOCATION</small><span>${esc(ep.place)}</span></div></div>
-  <div class="panel talk fade">${ep.talk.map(t=>`<p>${esc(t)}</p>`).join("")}</div>
-  <div class="choices fade">${opts.map((c,n)=>`<button class="choice" data-n="${n}"><span class="key">${"ABC"[n]}</span><span>${esc(c.t)}</span></button>`).join("")}</div>`;
-  app.querySelectorAll(".choice").forEach(b=>b.onclick=()=>choose(opts[+b.dataset.n]));
-  window.scrollTo({top:0});
-}
-
-function chip(cls,lab,v){if(!v)return"";return`<span class="chip ${cls}">${lab} ${v>0?"+":""}${v}</span>`}
-
-function choose(c){
-  S.kou=clamp(S.kou+c.k); S.hiki=clamp(S.hiki+c.h); S.sara=clamp(S.sara+c.s);
-  S.kouRaw=(S.kouRaw||30)+c.k;
-  if(c.ban)S.ban=true;
-  S.log.push({t:c.t,bad:c.h>0});
-  const done = S.ban || S.hiki>=100 || S.sara>=100 || S.i===EPISODES.length-1;
-  let ev="";
-  if(!done && EVENT_AFTER.includes(S.i)){
-    const pool=EVENTS.filter(e=>e.when(S));
-    const cond=pool.filter(e=>Object.keys(e.d).length);
-    const e=cond.length && Math.random()<.8 ? cond[0] : pool[Math.floor(Math.random()*pool.length)];
-    S.kou=clamp(S.kou+(e.d.kou||0)); S.sara=clamp(S.sara+(e.d.sara||0));
-    if(e.d.kou)S.kouRaw+=e.d.kou;
-    ev=`<div class="event fade"><h3>イベント：${esc(e.title)}</h3><p>${esc(e.text)}</p>
-      <div class="deltas" style="margin-top:6px">${chip("c-kou","好感度",e.d.kou)}${chip("c-sara","晒され度",e.d.sara)}</div></div>`;
+function tick(first){
+  S.m++;
+  const month=S.m%12, yi=Math.floor(S.m/12);
+  if(month===0){
+    if(yi>=MAX_YEARS){ return finish(); }
+    log(`${year()}年（${age()}歳）`, "y");
+    if(ERA[year()]) log(ERA[year()], "big");
+    const n=Math.random()<.5?2:3;
+    S.plan=shuffle([1,2,3,4,5,6,7,8,9,10]).slice(0,n);
+    S.queue.push(()=>askFocus());
   }
-  app.innerHTML=`${hud()}
-  <div class="panel fade" style="display:grid;gap:12px">
-    <p style="font-size:13px;color:var(--muted)">${esc(S.name)}の行動</p>
-    <p><b>${esc(c.t)}</b></p>
-    <div class="bubble say">${esc(c.say)}</div>
-    <div class="bubble inner">${esc(c.inner)}</div>
-    <div class="deltas">${chip("c-kou","好感度",c.k)}${chip("c-hiki","ドン引き度",c.h)}${chip("c-sara","晒され度",c.s)}${c.h===0?'<span class="chip c-kou">ちょうどいい距離感</span>':""}</div>
+  // 毎月の変化
+  const f=FOCUS[S.focus];
+  S.money=Math.round((S.money+f.money+ (S.heat>70?-2:0))*10)/10;
+  S.clean=clamp(S.clean+f.clean-.5);
+  S.shin=clamp(S.shin+f.shin);
+  S.heat=clamp(S.heat+f.heat-.3);
+  S.wota=clamp(S.wota-.3);
+  S.sara=clamp(S.sara-1);
+  if(!first){
+    if(month===S.oshi.bday) log(`${S.oshi.name}の生誕祭。${S.oshi.color}のペンライトで会場が染まった。`);
+    else if(S.clean<28 && Math.random()<.35) log(rnd(LINES.dirty),"ep");
+    else if(Math.random()<.65) log(fill(rnd(Math.random()<.45?LINES[S.focus]:LINES.any)));
+    if(S.oshi.big && month===5 && Math.random()<.5) log(`人気投票で${S.oshi.name}が${1+Math.floor(Math.random()*30)}位に。`);
+    if(S.money<-30 && Math.random()<.3){ log("カードの請求額を見て震えた。リボ払いはやめよう。","ep"); }
+    if(Math.random()<.008*(1+Math.floor(S.m/12)/3)) graduate();
+  }
+  if(S.plan.includes(month)) S.queue.push(()=>episode());
+  if(month===7) relationCheck();
+  render();
+  next();
+}
+function next(){ if(S.ended) return; if(S.queue.length && card.dataset.open!=="1"){ const f=S.queue[0]; f(); } }
+function done(){ S.queue.shift(); closeSheet(); render(); next(); if(S.sara>=100) finish("sarashi"); }
+
+function graduate(){
+  const old=S.oshi;
+  log(`${old.name}が卒業を発表した。頭が真っ白になった。`, "big");
+  S.oshi=pickOshi(old); S.oshiHist.push(S.oshi);
+  log(`しばらくして、${S.oshi.group}の${S.oshi.name}（${S.oshi.color}）に推し変した。`, "big");
+  addHist(`${old.name}の卒業。${S.oshi.group}の${S.oshi.name}に推し変`);
+}
+
+/* ===== ログ ===== */
+function log(text,cls=""){
+  S.log.unshift({t:cls==="y"?"":`${year()}.${String(mon()).padStart(2,"0")}`, text, cls});
+  if(S.log.length>160) S.log.length=160;
+}
+function addHist(text){ S.hist.push({y:year(), text}); }
+
+/* ===== 画面 ===== */
+function game(){
+  app.innerHTML=`
+  <div class="panel top" id="top"></div>
+  <div class="ctrl" role="group" aria-label="速さ">
+    <button data-r="0">一時停止</button><button data-r="1">ふつう</button><button data-r="4">早送り</button><button data-r="20">超早送り</button>
+    <span class="focus" id="fx"></span>
   </div>
-  ${ev}
-  <div class="row"><button class="btn" id="next">${done?"結末を見る":"次の現場へ"}</button></div>`;
-  document.getElementById("next").onclick=()=>{ if(done) ending(); else {S.i++; episode();} };
-  document.getElementById("next").focus({preventScroll:true});
+  <div class="panel"><ul class="log" id="log" aria-live="polite"></ul></div>
+  <div class="row"><button class="btn ghost" id="quit">タイトルに戻る</button></div>`;
+  app.querySelectorAll(".ctrl button").forEach(b=>b.onclick=()=>{S.rate=+b.dataset.r;renderCtrl()});
+  document.getElementById("quit").onclick=()=>{ if(confirmQuit()) title(); };
+}
+function confirmQuit(){ S.ended=true; return true; }
+function renderCtrl(){ app.querySelectorAll(".ctrl button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.r===S.rate)); }
+function meter(cls,lab,v){return `<div class="meter ${cls}"><b>${lab}<span>${Math.round(v)}</span></b><div class="bar"><i style="width:${v}%"></i></div></div>`}
+function render(){
+  const top=document.getElementById("top"); if(!top) return;
+  const rel=["","気になる人：","交際中：","婚約中："][S.rel.stage];
+  top.innerHTML=`
+   <div class="clock"><span class="yr">${year()}年 ${mon()}月</span><span class="age">${esc(S.name)} ${age()}歳 ・ ${Math.floor(S.m/12)+1}年目 / ${MAX_YEARS}年 ・ 所持金 <span class="money">${Math.round(S.money)}万円</span></span></div>
+   <div class="yearbar"><i id="yb"></i></div>
+   <div class="oshi"><span class="dot" style="background:${S.oshi.hex}"></span><div><small>推し ・ ${esc(S.oshi.type)}</small><b>${esc(S.oshi.group)}　${esc(S.oshi.name)}</b>${S.rel.stage?`<small style="color:var(--gold)">${rel}${esc(S.rel.her)}さん</small>`:""}</div></div>
+   <div class="stats">${meter("m-clean","清潔感",S.clean)}${meter("m-shin","紳士度",S.shin)}${meter("m-wota","ヲタヲタ度",S.wota)}${meter("m-heat","推し熱",S.heat)}${meter("m-sara","晒され度",S.sara)}${meter("m-love","恋愛",S.love)}</div>`;
+  document.getElementById("fx").textContent="今年の重点："+FOCUS[S.focus].label;
+  document.getElementById("log").innerHTML=S.log.slice(0,80).map((l,i)=>`<li class="${l.cls}${i===0?" new":""}">${l.cls==="y"?`<time></time><span>${esc(l.text)}</span>`:`<time>${l.t}</time><span>${esc(l.text)}</span>`}</li>`).join("");
+  renderCtrl();
 }
 
+/* ===== シート ===== */
+function openSheet(html){ card.innerHTML=html; card.dataset.open="1"; sheet.hidden=false; const f=card.querySelector("button"); if(f) f.focus({preventScroll:true}); }
+function closeSheet(){ card.dataset.open="0"; sheet.hidden=true; }
+function chip(cls,lab,v){ v=Math.round(v); if(!v) return ""; return `<span class="chip ${cls}">${lab} ${v>0?"+":""}${v}</span>`; }
+
+/* 今年の重点 */
+function askFocus(){
+  const keys=Object.keys(FOCUS);
+  openSheet(`
+   <div class="ticket year"><div class="no">YEAR<strong>${Math.floor(S.m/12)+1}</strong></div><div class="place"><small>NEW YEAR</small><span>${year()}年・${age()}歳の抱負</span></div></div>
+   <p>今年は何に力を入れる？</p>
+   <div class="choices">${keys.map((k,i)=>`<button class="choice" data-k="${k}"><span class="key">${"ABCD"[i]}</span><span>${FOCUS[k].label}<small>${FOCUS[k].desc}</small></span></button>`).join("")}</div>`);
+  card.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{ S.focus=b.dataset.k; log(`今年の重点：${FOCUS[S.focus].label}`); done(); });
+}
+
+/* ヲタヲタエピソード */
+function episode(){
+  if(!S.epQueue.length) S.epQueue=shuffle(window.EPISODES.map((_,i)=>i));
+  const ep=window.EPISODES[S.epQueue.shift()];
+  const her=rnd(HERS);
+  const opts=shuffle(ep.choices.slice());
+  openSheet(`
+   <div class="ticket"><div class="no">現場<strong>${year()}</strong>${mon()}月</div><div class="place"><small>LOCATION</small><span>${esc(fill(ep.place,her))}</span></div></div>
+   <div class="talk">${ep.talk.map(t=>`<p>${esc(fill(t,her))}</p>`).join("")}</div>
+   <p style="font-size:13px;color:var(--muted)">相手：同じ現場の女性オタク・${esc(her)}さん</p>
+   <div class="choices">${opts.map((c,n)=>`<button class="choice" data-n="${n}"><span class="key">${"ABC"[n]}</span><span>${esc(fill(c.t,her))}</span></button>`).join("")}</div>`);
+  card.querySelectorAll(".choice").forEach(b=>b.onclick=()=>result(opts[+b.dataset.n],her,ep));
+}
+function result(c,her,ep){
+  const good=!c.h;
+  const d={wota: good?-4:c.h*.6, shin: good?7:-Math.round(c.h/3), sara:c.s||0};
+  S.wota=clamp(S.wota+d.wota); S.shin=clamp(S.shin+d.shin); S.sara=clamp(S.sara+d.sara);
+  good?S.counts.good++:S.counts.bad++;
+  log(`${fill(ep.place,her)}：${fill(c.t,her)}`, good?"good":"ep");
+  if(!good && c.h>=25) addHist(`${her}さんにドン引きされる（${fill(ep.place,her)}）`);
+  openSheet(`
+   <p style="font-size:13px;color:var(--muted)">${esc(S.name)}の行動</p>
+   <p><b>${esc(fill(c.t,her))}</b></p>
+   <div class="bubble say"><small>${esc(her)}</small>${esc(fill(c.say,her))}</div>
+   <div class="bubble inner"><small>${esc(her)}の心の声</small>${esc(fill(c.inner,her))}</div>
+   <div class="deltas">${chip("c-bad","ヲタヲタ度",d.wota)}${chip(d.shin>0?"c-ok":"c-bad","紳士度",d.shin)}${chip("c-warn","晒され度",d.sara)}${good?'<span class="chip c-ok">ちょうどいい距離感</span>':""}</div>
+   <div class="row"><button class="btn" id="ok">${c.ban?"……":"日常に戻る"}</button></div>`);
+  let warn=false;
+  if(c.ban){
+    if(S.warned){ S.banNow=true; }
+    else { S.warned=true; warn=true; S.sara=clamp(S.sara+20); log("運営から「次に同様の行為があれば出入り禁止とします」と厳重注意を受けた。","ep big"); addHist(`${her}さんが運営に相談。運営から厳重注意を受ける`); }
+  }
+  if(warn) card.querySelector(".deltas").insertAdjacentHTML("afterend",`<p class="notice" style="border-color:var(--danger)">${esc(her)}さんが運営に相談し、あなたは運営から厳重注意を受けた。次はない。</p>`);
+  document.getElementById("ok").onclick=()=>{ if(S.banNow){ S.queue=[]; closeSheet(); addHist(`${her}さんが運営に相談`); return finish("ban"); } done(); };
+}
+
+/* 恋愛 */
+const eligible=()=>S.wota<=25 && S.shin>=65 && S.clean>=60;
+function relationCheck(){
+  const yi=Math.floor(S.m/12), st=S.rel.stage;
+  if(st>0 && (S.wota>40 || S.clean<40 || S.shin<50)){
+    log(`${S.rel.her}さんから「少し距離を置きたい」と言われた。`, "ep");
+    addHist(`${S.rel.her}さんと別れる`);
+    S.rel={stage:0,her:"",tried:yi}; S.love=0; return;
+  }
+  if(st===0 && yi>=2 && yi-S.rel.tried>=1 && eligible()) S.queue.push(()=>meet());
+  else if(st===1 && yi>S.rel.tried) S.queue.push(()=>dateEv());
+  else if(st===2 && yi>S.rel.tried) S.queue.push(()=>propose());
+}
+function loveSheet(place,talk,opts,onPick){
+  openSheet(`
+   <div class="ticket love"><div class="no">LOVE<strong>${year()}</strong></div><div class="place"><small>EVENT</small><span>${esc(place)}</span></div></div>
+   <div class="talk">${talk.map(t=>`<p>${esc(t)}</p>`).join("")}</div>
+   <div class="choices">${opts.map((o,n)=>`<button class="choice" data-n="${n}"><span class="key">${"ABC"[n]}</span><span>${esc(o.t)}</span></button>`).join("")}</div>`);
+  card.querySelectorAll(".choice").forEach(b=>b.onclick=()=>onPick(opts[+b.dataset.n]));
+}
+function loveResult(text,deltas,btn,after){
+  openSheet(`<div class="talk"><p>${esc(text)}</p></div><div class="deltas">${deltas}</div><div class="row"><button class="btn" id="ok">${btn}</button></div>`);
+  document.getElementById("ok").onclick=after||done;
+}
+function meet(){
+  const her=rnd(HERS.filter(h=>h!==S.rel.her)), yi=Math.floor(S.m/12);
+  const where=rnd([`友人の結婚式の二次会で、${her}さんと隣の席になった。`,`職場の飲み会で、${her}さんと${S.oshi.group}の話で意外と盛り上がった。`,`オタ友の紹介で、${her}さんと食事をすることになった。`,`フェスの帰り、${her}さんが落としたチケットを拾って渡した。`]);
+  loveSheet("出会い",[where,"話していて、なんだか居心地がいい。"],shuffle([
+    {t:"「また話しましょう」と連絡先を聞き、次は相手の都合に合わせて会う約束をする。",ok:true},
+    {t:"初対面で推しの魅力を2時間語り、そのまま次の現場に誘う。",ok:false,msg:"相手はずっと愛想笑いだった。連絡先は聞けなかった。"},
+    {t:"その日のうちに「付き合ってください」とLINEを送る。",ok:false,msg:"「まだお互いのことを知らないので……」と返ってきた。"}]),
+    o=>{
+      if(o.ok){ S.rel={stage:1,her,tried:yi}; S.love=35; log(`${her}さんと出会った。`,"good"); addHist(`${her}さんと出会う`);
+        loveResult(`${her}さんとは、ときどき食事に行く仲になった。`,chip("c-ok","恋愛",35),"日常に戻る"); }
+      else { S.rel.tried=yi; S.shin=clamp(S.shin-6); log(`${her}さんとの出会いは、うまくいかなかった。`,"ep");
+        loveResult(o.msg,chip("c-bad","紳士度",-6),"日常に戻る"); }
+    });
+}
+function dateEv(){
+  const yi=Math.floor(S.m/12), her=S.rel.her;
+  loveSheet("デートの約束",[`${her}さんとの初めての遠出の日が、${S.oshi.name}の大事なライブと重なってしまった。`],shuffle([
+    {t:`正直に事情を話し、${her}さんと相談して日程を決め直す。`,ok:true},
+    {t:"当日の朝に「体調が悪い」と嘘をついてライブに行く。",ok:false,end:true,msg:`ライブ会場でのSNS投稿を${her}さんに見られた。「嘘をつかれたのが悲しい」と言われ、関係は終わった。`},
+    {t:"デートに行くが、ずっとライブの実況を見ている。",ok:false,msg:"「今日はスマホばっかりだったね」と言われた。"}]),
+    o=>{
+      if(o.ok){ S.rel.stage=2; S.rel.tried=yi; S.love=70; log(`${her}さんと付き合うことになった。`,"good"); addHist(`${her}さんと交際スタート`);
+        loveResult(`「ちゃんと話してくれてうれしい」と${her}さん。日程を決め直した遠出の帰り道、付き合うことになった。`,chip("c-ok","恋愛",35),"日常に戻る"); }
+      else if(o.end){ S.rel={stage:0,her:"",tried:yi}; S.love=0; S.shin=clamp(S.shin-10); log(`${her}さんとの関係が終わった。`,"ep"); addHist(`${her}さんにふられる`);
+        loveResult(o.msg,chip("c-bad","紳士度",-10),"日常に戻る"); }
+      else { S.rel.tried=yi; S.love=clamp(S.love-10); loveResult(o.msg,chip("c-bad","恋愛",-10),"日常に戻る"); }
+    });
+}
+function propose(){
+  const yi=Math.floor(S.m/12), her=S.rel.her;
+  loveSheet("プロポーズ",[`${her}さんと付き合って1年以上。${her}さんは${S.name}の推し活も笑って見守ってくれている。`,"そろそろ、将来の話をしたい。"],shuffle([
+    {t:"二人で落ち着いて話せる場所で、推し活との付き合い方も含めて正直に気持ちを伝える。",ok:true},
+    {t:`${S.oshi.name}のライブ会場で、ペンライトを振りながらサプライズでプロポーズする。`,ok:false,msg:"周りの視線が痛かった。「気持ちはうれしいけど、場所は選んでほしかった」と保留された。"},
+    {t:"「結婚したら推し活は一切やめるから」と約束してプロポーズする。",ok:false,msg:`「無理な約束はしなくていいよ。もう少しお互い考えよう」と${her}さん。`}]),
+    o=>{
+      if(o.ok){ S.love=100; log(`${her}さんにプロポーズし、受け入れてもらえた。`,"good"); addHist(`${her}さんと結婚`);
+        loveResult(`${her}さんは泣き笑いで「はい」と言ってくれた。`,chip("c-ok","恋愛",30),"結末を見る",()=>{S.queue=[];closeSheet();finish("marry")}); }
+      else { S.rel.tried=yi; S.love=clamp(S.love-10); log("プロポーズは保留になった。","ep"); loveResult(o.msg,chip("c-bad","恋愛",-10),"日常に戻る"); }
+    });
+}
+
+/* ===== 結末 ===== */
 function diagnosis(){
-  const h=S.hiki;
-  if(S.ban)return["通報案件","ヲタヲタを通り越して迷惑行為でした。"];
-  if(h>=70)return["完全なるヲタヲタ","現場の女性オタクから要注意人物として共有されています。"];
-  if(h>=40)return["ヲタヲタ予備軍","悪気がないのが一番こわいタイプ。"];
-  if(h>=15)return["ちょいヲタヲタ","ときどき距離感がバグります。"];
-  return["紳士オタ","推しと相手の推し活を尊重できる、現場の鑑。"];
+  const w=S.wota;
+  if(w>=70) return ["完全なるヲタヲタ","現場の女性オタクから要注意人物として共有されています。"];
+  if(w>=40) return ["ヲタヲタ予備軍","悪気がないのが一番こわいタイプ。"];
+  if(w>=20) return ["ちょいヲタヲタ","ときどき距離感がバグります。"];
+  return ["紳士オタ","推しも、相手の推し活も尊重できる現場の鑑。"];
 }
-
-function ending(){
-  const s={...S,kou:S.kouRaw};
-  const e=ENDINGS.find(x=>x.test(s));
-  saveSeen(e.id);
-  const seen=new Set(loadSeen());
-  const [dname,dtext]=diagnosis();
-  const share=`女ヲタヲタシミュレータで「${e.title}」に到達しました。診断は「${dname}」（ドン引き度${S.hiki}%）。`;
+const ENDTEXT = {
+ marry:{text:h=>`${h}さんと結婚した。休日は二人で配信ライブを見ることもある。推し活は続けながら、自分の人生もちゃんと大事にできるようになった。`, lesson:"適切な距離感、紳士な態度、清潔感。三つそろったオタクは、ちゃんとモテます。"},
+ ban:{text:()=>"女性オタクが運営に相談し、あなたには「今後の公演への入場をお断りします」という通知が届いた。推しにも、もう会えない。", lesson:"つきまとい、特定、盗撮はヲタヲタを超えた迷惑行為です。運営は本気で対応します。"},
+ sarashi:{text:()=>"あなたのDMやリプのスクショが「現場にいるヤバい男オタク」として拡散された。どの現場に行っても視線が刺さり、界隈から居場所がなくなった。", lesson:"女性オタク同士の情報共有は速い。一人に向けたつもりの言葉も、みんなが見ています。"},
+ oji:{text:()=>"15年が経った。現場では古参として知られているが、女性オタクたちからは「あの人には近づかないほうがいい」と言われている。", lesson:"年数を重ねても、距離感は勝手には身につきません。"},
+ almost:{text:()=>"距離感も態度も申し分ない。現場の女性オタクからの評判もいい。ただ、出会いの場ではいつも「清潔感がもう少し……」と言われてしまった。", lesson:"紳士な態度に清潔感が加われば、結果は変わっていたかもしれません。"},
+ solo:{text:()=>"15年が経った。結婚はしなかったが、推しと、気の合うオタ友たちに囲まれた毎日は悪くない。", lesson:"これも立派な人生。もう少し身だしなみと人付き合いに振れば、別の未来もありました。"}
+};
+function finish(id){
+  if(S.ended) return; S.ended=true; stop(); closeSheet();
+  if(!id){ id = S.wota>=50 ? "oji" : (S.wota<=25 && S.shin>=65 && S.clean<60) ? "almost" : "solo"; }
+  const e=ENDINGS.find(x=>x.id===id), t=ENDTEXT[id];
+  saveSeen(id);
+  const seen=new Set(loadSeen()), [dn,dt]=diagnosis();
+  const yrs=Math.floor(S.m/12)+1;
+  const share=`女ヲタヲタシミュレータで「${e.title}」に到達しました。${S.oshi.group}の${S.oshi.name}推しで${yrs}年、診断は「${dn}」（ヲタヲタ度${Math.round(S.wota)}）。`;
   app.innerHTML=`
   <div class="panel fade ${e.tone}" style="display:grid;gap:14px">
-    <p class="end-tag">ENDING ・ 出現しやすさ ${e.rarity}</p>
+    <p class="end-tag">ENDING ・ ${S.startYear}年〜${year()}年 ・ 出現しやすさ ${e.rarity}</p>
     <h2 class="end-title">${esc(e.title)}</h2>
-    <p>${esc(e.text)}</p>
-    <p class="notice">${esc(e.lesson)}</p>
-    <div class="diag"><span style="font-size:12px;color:var(--muted)">${esc(S.name)}のヲタヲタ度診断</span><strong>${esc(dname)}</strong><span style="font-size:13px">${esc(dtext)}</span></div>
-    ${hud()}
-    <div class="row"><button class="btn" id="again">もう一度現場へ</button><button class="btn ghost" id="copy">結果をコピー</button></div>
+    <p>${esc(t.text(S.rel.her))}</p>
+    <p class="notice">${esc(t.lesson)}</p>
+    <div class="diag"><span style="font-size:12px;color:var(--muted)">${esc(S.name)}（${age()}歳）のヲタヲタ度診断</span><strong>${esc(dn)}</strong><span style="font-size:13px">${esc(dt)}</span>
+      <span style="font-size:13px">紳士な選択 ${S.counts.good}回 ・ ヲタヲタな選択 ${S.counts.bad}回</span></div>
+    <div class="stats">${meter("m-clean","清潔感",S.clean)}${meter("m-shin","紳士度",S.shin)}${meter("m-wota","ヲタヲタ度",S.wota)}</div>
+    <div class="row"><button class="btn" id="again">もう一度オタクになる</button><button class="btn ghost" id="copy">結果をコピー</button></div>
     <p id="copied" style="font-size:13px;color:var(--muted)" hidden></p>
   </div>
   <div class="panel" style="display:grid;gap:10px">
-    <h3 style="font-size:16px">あなたの選択</h3>
-    <ol class="log">${S.log.map(l=>`<li class="${l.bad?"bad":""}">${esc(l.t)}</li>`).join("")}</ol>
+    <h3 style="font-size:16px">${esc(S.name)}の年表</h3>
+    <ul class="hist">${S.hist.map(h=>`<li><time>${h.y}</time><span>${esc(h.text)}</span></li>`).join("")}<li><time>${year()}</time><span>${esc(e.title)}</span></li></ul>
   </div>
   <div class="panel" style="display:grid;gap:10px">
     <h3 style="font-size:16px">エンディング回収 ${seen.size} / ${ENDINGS.length}</h3>
@@ -325,8 +507,7 @@ function ending(){
   </div>`;
   document.getElementById("again").onclick=title;
   document.getElementById("copy").onclick=()=>{
-    const out=document.getElementById("copied");
-    const show=t=>{out.hidden=false;out.textContent=t};
+    const out=document.getElementById("copied"), show=t=>{out.hidden=false;out.textContent=t};
     try{navigator.clipboard.writeText(share).then(()=>show("コピーしました"),()=>show(share))}catch(err){show(share)}
   };
   window.scrollTo({top:0});
@@ -334,6 +515,5 @@ function ending(){
 
 title();
 </script>
-
 </body>
 </html>
