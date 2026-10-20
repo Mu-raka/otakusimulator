@@ -85,18 +85,44 @@ details ul{margin:10px 0 0;padding-left:1.2em;display:grid;gap:6px;font-size:14p
 .log li.y span{font-family:var(--f-display);color:var(--pink)}
 .log li.ep span{color:var(--danger)} .log li.good span{color:var(--ok)} .log li.big span{font-weight:700}
 .log li.new{animation:fade .35s ease}
-.oshi.cands .cand{display:grid;grid-template-columns:auto minmax(0,1fr) 30%;gap:8px;align-items:center;font-size:13px;margin-top:4px}
-.oshi .dot.sm{width:14px;height:14px;border-width:1px}
-.cand .cn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.nbar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}.nbar i{display:block;height:100%;transition:width .4s ease}
-.numa{display:grid;gap:12px;padding:16px;border-radius:12px;border:2px solid var(--mc);box-shadow:0 0 0 4px color-mix(in srgb,var(--mc) 25%,transparent),0 0 28px color-mix(in srgb,var(--mc) 45%,transparent)}
-.numa-tag{font-family:var(--f-display);font-size:12px;color:var(--muted);letter-spacing:.1em}
-.numa-big{font-family:var(--f-display);font-size:clamp(30px,9vw,44px);line-height:1.2;color:var(--pink);animation:numa 1.2s ease}
-.numa-card{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--bg)}
-.numa-card .dot{width:40px;height:40px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 14px var(--mc)}
-.numa-card div{min-width:0}.numa-card small{display:block;font-size:11px;color:var(--muted)}.numa-card b{font-size:16px}
-.numa-sub{font-size:13px;color:var(--muted)}
-@keyframes numa{0%{opacity:0;transform:translateY(-14px) scale(1.15)}60%{opacity:1}100%{transform:none}}
+/* 沼落ち：ランキング・整列・入場券・沼落ち届 */
+.rank{display:grid;gap:6px;font-size:13px}
+.rank h3{font-size:16px}
+.rank .r{display:grid;grid-template-columns:minmax(0,10em) 1fr 3.8em;gap:8px;align-items:center}
+.rank .r span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank .r small{color:var(--muted);font-size:11px;margin-left:4px}
+.rank .r em{font-style:normal;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.rank .other{color:var(--muted)}
+.nbar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}.nbar i{display:block;height:100%;background:var(--pink)}
+.oshi .dot.lost{background:var(--line)!important}
+.entry{display:grid;gap:12px;cursor:pointer}
+.entry .call{font-family:var(--f-display);font-size:13px;color:var(--muted);letter-spacing:.1em}
+.entry .call b{display:block;font-weight:400;font-size:22px;color:var(--ink);letter-spacing:0}
+.pass{border:1.5px dashed var(--pink);border-radius:10px;background:var(--pink-soft);display:grid;grid-template-columns:minmax(0,1fr) auto}
+.pass dl{margin:0;padding:12px 14px;display:grid;grid-template-columns:4.5em minmax(0,1fr);gap:4px 10px;font-size:13px}
+.pass dt{color:var(--muted)} .pass dd{margin:0;font-weight:700;min-width:0}
+.pass .stub{border-left:1.5px dashed var(--pink);padding:12px;display:flex;flex-direction:column;justify-content:center;align-items:center;font-family:var(--f-display);color:var(--pink);font-size:11px;text-align:center}
+.pass .stub strong{font-size:18px;font-weight:400}
+.slot.done{color:var(--pink);animation:numa .6s ease}
+.skip{font-size:12px;color:var(--muted);text-align:center}
+.todoke{border-radius:12px;overflow:hidden;border:2px solid color-mix(in srgb,var(--mc) 80%,var(--muted));box-shadow:0 0 0 4px color-mix(in srgb,var(--mc) 22%,transparent),0 0 26px color-mix(in srgb,var(--mc) 40%,transparent);animation:numa .8s ease}
+.todoke header{background:var(--pink);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 14px;font-family:var(--f-display);font-size:16px}
+.todoke header small{font-size:11px;letter-spacing:.06em}
+.todoke .body{padding:14px;display:grid;gap:12px;position:relative}
+.todoke .who{padding-right:70px}
+.todoke .who small{display:block;font-size:11px;color:var(--muted)}
+.todoke .who b{font-family:var(--f-display);font-weight:400;font-size:28px;line-height:1.2;overflow-wrap:anywhere}
+.stamp{position:absolute;top:12px;right:12px;width:62px;height:62px;border:2px solid var(--pink);border-radius:50%;color:var(--pink);display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;line-height:1.2;transform:rotate(12deg);opacity:.85}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 12px;margin:0;font-size:13px;border-top:1px dashed var(--line);padding-top:12px}
+.facts div{min-width:0} .facts dt{font-size:11px;color:var(--muted)} .facts dd{margin:0;font-weight:700;overflow-wrap:anywhere}
+.mc{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:4px;vertical-align:-1px;border:1px solid var(--line)}
+.peers{display:grid;gap:4px;font-size:13px;border-top:1px dashed var(--line);padding-top:12px}
+.peers h4{margin:0;font-size:13px}
+.peers ul{margin:0;padding:0;display:grid;gap:2px;list-style:none}
+.peers small{color:var(--muted)}
+.fine{font-size:12px;color:var(--muted)}
+@media (max-width:420px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@keyframes numa{0%{opacity:0;transform:translateY(-14px) scale(1.06)}60%{opacity:1}100%{transform:none}}
 /* sheet */
 .sheet{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;z-index:20;
   padding:0 max(0px,env(safe-area-inset-right,0px)) 0 max(0px,env(safe-area-inset-left,0px))}
@@ -141,7 +167,7 @@ details ul{margin:10px 0 0;padding-left:1.2em;display:grid;gap:6px;font-size:14p
 .fade{animation:fade .35s ease}
 @keyframes fade{from{opacity:.2;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
-@media (prefers-reduced-motion:reduce){.numa-big,.fade,.log li.new,.sheet .card{animation:none}.bar i{transition:none}}
+@media (prefers-reduced-motion:reduce){.todoke,.slot.done,.fade,.log li.new,.sheet .card{animation:none}.bar i{transition:none}}
 @media (max-width:420px){.stats{gap:8px}.meter b{font-size:11px}}
 </style>
 </head>
@@ -153,15 +179,20 @@ details ul{margin:10px 0 0;padding-left:1.2em;display:grid;gap:6px;font-size:14p
 <script>
 /* ===== データ ===== */
 const GROUPS = [
- {g:"Lumière☆Days", type:"地下アイドル", big:false},
- {g:"放課後プリズム", type:"ライブアイドル", big:false},
- {g:"月白坂", type:"大所帯グループ", big:true},
- {g:"TOKIMEKI STATION", type:"劇場型アイドル", big:true},
- {g:"ひよこ組", type:"歌って踊れる系", big:false},
- {g:"NOVA:LINE", type:"K-POP系", big:true},
- {g:"ねこみみ☆ぱらだいす", type:"コンカフェ系ユニット", big:false},
- {g:"ミルキー・アーカイブ", type:"声優ユニット", big:true}
+ {g:"Lumière☆Days", type:"地下アイドル", big:false, fol:6000, genre:"正統派アイドル", city:"東京", toku:"チェキ列はゆるめ。ループし放題"},
+ {g:"放課後プリズム", type:"ライブアイドル", big:false, fol:11000, genre:"青春ロック", city:"大阪", toku:"2ショットチェキ。列は中くらい"},
+ {g:"月白坂", type:"大所帯グループ", big:true, fol:240000, genre:"清楚系", city:"東京", toku:"握手会は抽選。数秒で終わる"},
+ {g:"TOKIMEKI STATION", type:"劇場型アイドル", big:true, fol:130000, genre:"劇場公演", city:"東京", toku:"公演後のお見送り。目が合えば勝ち"},
+ {g:"ひよこ組", type:"歌って踊れる系", big:false, fol:3500, genre:"kawaiiポップ", city:"名古屋", toku:"撮影会あり。距離が近い"},
+ {g:"NOVA:LINE", type:"K-POP系", big:true, fol:320000, genre:"K-POP", city:"ソウル・東京", toku:"サイン会は抽選。当たれば一生の思い出"},
+ {g:"ねこみみ☆ぱらだいす", type:"コンカフェ系ユニット", big:false, fol:2400, genre:"電波ソング", city:"秋葉原", toku:"お店でのお給仕もある"},
+ {g:"ミルキー・アーカイブ", type:"声優ユニット", big:true, fol:90000, genre:"アニソン", city:"東京", toku:"リリイベのお渡し会"}
 ];
+const VENUES = ["渋谷ネオンホール","下北沢ステラ","新宿ルーフトップ","池袋サンライトスタジオ","代官山スペースK","お台場シーサイドアリーナ","心斎橋クラブ・ルナ","栄ミラージュホール"];
+const EVENTS = ["対バンライブ","定期公演","フリーライブ","アイドルフェス","リリースイベント","ワンマンライブ"];
+const PEERS = ["けんぼう","ゆうき＠在宅","まさ（社会人）","だいちゃん","しゅん＠遠征民","のぶさん","こうへい","たっくん","ひろ＠最前"];
+const JOBS = ["会社員","大学生","公務員","エンジニア","看護師","フリーター","教員","営業職","大学院生"];
+const PREFS = ["東京","神奈川","埼玉","千葉","大阪","愛知","福岡","宮城","静岡"];
 const NAMES = ["りりあ","みゆ","ひなの","さき","ゆな","ここあ","まりん","あやね","すず","かのん","めい","ちひろ","るな","ののか","あいり"];
 const COLORS = [["ピンク","#ff6fa5"],["水色","#5cc8f0"],["黄色","#f5cd2e"],["紫","#9b6be0"],["赤","#ef4f4f"],["緑","#4cc47a"],["オレンジ","#ff9b3d"],["白","#f4f4f4"]];
 const HERS = ["ミナ","サキ","ユイ","マホ","アヤ","リコ","ナツ","ハル","モモ"];
@@ -197,13 +228,12 @@ const ENCOUNTERS = [
  "{group}の無料ライブの前を通りかかり、なんとなく最後まで見てしまった。",
  "会社の後輩に{group}のMVを見せられた。{name}のソロパートで手が止まった。"
 ];
-const FALL_SCENES = [
- ["{group}の定期公演に、初めて一人で行ってみた。","落ちサビ。{name}がこちらを見て、ふっと笑った（気がした）。"],
- ["{group}の生配信をなんとなく開いた。","{name}が「来てくれてありがとう」と画面越しに言った。自分に言われた気がした。"],
- ["友達に連れられて、{group}の特典会に並んだ。","{name}が「はじめましてですよね？また来てね」と言った。その声が、帰りの電車でもずっと鳴っていた。"],
- ["{group}のライブ映像を夜中に見ていた。","MCで泣きながら夢を語る{name}を見て、気づいたら一緒に泣いていた。"]
-];
 const MAX_YEARS = 15;
+const PICK_MODES = {
+ follow:{label:"フォロワー数に比例", desc:"人気のアイドルほど出会いやすい", w:f=>f},
+ equal:{label:"全員同じ確率", desc:"フォロワー2,000人台の子とも平等に出会う", w:()=>1},
+ inverse:{label:"フォロワー数に反比例", desc:"まだ小さな現場の子ほど出会いやすい", w:f=>1/f}
+};
 
 const ENDINGS = [
  {id:"marry", tone:"best", title:"結婚あがり", rarity:"★★★"},
@@ -227,12 +257,30 @@ function fillC(t,c){return String(t).replaceAll("{group}",c.group).replaceAll("{
 function loadSeen(){try{return JSON.parse(localStorage.getItem("wotawota2-seen")||"[]")}catch(e){return[]}}
 function saveSeen(id){try{const s=new Set(loadSeen());s.add(id);localStorage.setItem("wotawota2-seen",JSON.stringify([...s]))}catch(e){}}
 
-function pickOshi(exclude){
-  let g, n;
-  do{ g=rnd(GROUPS); n=rnd(NAMES); }while(exclude && exclude.name===n && exclude.group===g.g);
-  const c=rnd(COLORS);
-  return {group:g.g, type:g.type, big:g.big, name:n, color:c[0], hex:c[1], bday:Math.floor(Math.random()*12)};
+/* 架空アイドル名簿：固定の乱数で作るので、だれが遊んでも同じ顔ぶれになる */
+function seeded(s){return()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const ROSTER=(()=>{
+  const r=seeded(2026), mix=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}, out=[];
+  GROUPS.forEach(g=>{
+    const n=g.big?5:3+Math.floor(r()*2), names=mix(NAMES), cols=mix(COLORS);
+    for(let k=0;k<n;k++) out.push({group:g.g, type:g.type, big:g.big, genre:g.genre, city:g.city, toku:g.toku,
+      name:names[k], color:cols[k][0], hex:cols[k][1], bday:Math.floor(r()*12), bdd:1+Math.floor(r()*28),
+      fol:Math.max(2000,Math.round(g.fol*(.35+r()*1.5)/100)*100)});
+  });
+  return out;
+})();
+function odds(mode){
+  const w=ROSTER.map(o=>PICK_MODES[mode].w(o.fol)), sum=w.reduce((a,b)=>a+b,0);
+  return ROSTER.map((o,i)=>({o,p:w[i]/sum})).sort((a,b)=>b.p-a.p);
 }
+function drawOshi(mode,exclude){
+  const list=odds(mode).filter(x=>x.o!==exclude), sum=list.reduce((a,x)=>a+x.p,0);
+  let v=Math.random()*sum;
+  for(const x of list){ v-=x.p; if(v<=0) return x.o; }
+  return list[list.length-1].o;
+}
+const pct=p=>p>=.1?(p*100).toFixed(0)+"%":p>=.01?(p*100).toFixed(1)+"%":(p*100).toFixed(2)+"%";
+const folText=f=>f>=10000?(f/10000).toFixed(f>=100000?0:1)+"万人":f.toLocaleString()+"人";
 
 /* ===== タイトル ===== */
 function title(){
@@ -242,7 +290,7 @@ function title(){
   app.innerHTML=`
   <div class="panel fade" style="display:grid;gap:16px">
     <h1 class="logo">女ヲタヲタ<br>シミュレータ<small>〜ある男が沼に落ちてからの15年〜</small></h1>
-    <p>あなたは男性のアイドルオタク。最初はまだ誰のオタクでもありません。いろんなアイドルと出会ううちに、ある日誰かの沼に落ちます。時間は勝手に流れ、年に2〜3回、現場で「女ヲタヲタ」な場面が訪れます。</p>
+    <p>あなたは男性のアイドルオタク。ある夜、どこかのライブハウスで、誰かの沼に落ちます。<b>推しは選べません。</b>沼は向こうからやってきます。時間は勝手に流れ、年に2〜3回、現場で「女ヲタヲタ」な場面が訪れます。</p>
     <p class="notice">距離感・紳士な態度・清潔感がそろえば、いつか大切な人と出会って結婚であがり。ヲタヲタ行動を重ねると、出禁や界隈追放が待っています。</p>
     <div class="form">
       <div><label for="name">あなたの名前</label><input id="name" type="text" maxlength="12" value="タカシ"></div>
@@ -250,13 +298,17 @@ function title(){
       <div><label for="age">そのときの年齢</label><select id="age">${[18,20,22,25,28,30,35].map(a=>`<option value="${a}" ${a===22?"selected":""}>${a}歳</option>`).join("")}</select></div>
       <div><label id="spd-l">1年が過ぎる速さ</label><div class="seg" role="group" aria-labelledby="spd-l" id="spd">
         <button type="button" data-v="3" aria-pressed="true">3分で1年</button><button type="button" data-v="6" aria-pressed="false">6分で1年</button><button type="button" data-v="9" aria-pressed="false">9分で1年</button></div></div>
+      <div><label id="mode-l">推しの決まり方</label><div class="seg" role="group" aria-labelledby="mode-l" id="mode">
+        ${Object.entries(PICK_MODES).map(([k,m],i)=>`<button type="button" data-v="${k}" aria-pressed="${i===0}">${m.label}</button>`).join("")}</div>
+        <p class="fine" id="mode-d" style="margin-top:4px"></p></div>
     </div>
-    <div class="row"><button class="btn" id="go">オタクになる</button></div>
+    <div class="rank" id="rank"></div>
+    <div class="row"><button class="btn" id="go">沼に落ちる</button></div>
     <p style="font-size:13px;color:var(--muted)">エンディング ${seen.length} / ${ENDINGS.length} 種 回収済み ・ ヲタヲタエピソード ${window.EPISODES.length} 話収録</p>
     <details>
       <summary>あそびかた</summary>
       <ul>
-        <li>最初は推しがいません。気になるアイドルとの出会いが重なると「沼ゲージ」がたまり、満タンになった子の沼に落ちます。推しが卒業すると推しロスになり、また次の沼を探します。</li>
+        <li>推しは選べません。架空のアイドル${ROSTER.length}人の中から、選んだ「推しの決まり方」の確率で、ある現場で沼に落ちる相手が決まります。推しが卒業すると推しロスになり、しばらくしてまた別の現場で次の沼に落ちます。</li>
         <li>年のはじめに「今年の重点」を選びます。身だしなみに力を入れると清潔感が上がります。</li>
         <li>年に2〜3回、女性オタクとの場面で行動を選びます。距離感のある行動は紳士度が上がり、ヲタヲタな行動はヲタヲタ度と晒され度が上がります。</li>
         <li>ヲタヲタ度が低く、紳士度と清潔感が高いと、出会いが訪れます。交際からプロポーズまで進めば結婚であがりです。</li>
@@ -264,18 +316,25 @@ function title(){
       </ul>
     </details>
   </div>`;
-  let spd=3;
+  let spd=3, mode="follow";
   app.querySelectorAll("#spd button").forEach(b=>b.onclick=()=>{spd=+b.dataset.v;app.querySelectorAll("#spd button").forEach(x=>x.setAttribute("aria-pressed",x===b))});
+  const showRank=()=>{
+    const list=odds(mode), top=list.slice(0,8), rest=list.slice(8).reduce((a,x)=>a+x.p,0), max=top[0].p;
+    document.getElementById("mode-d").textContent=PICK_MODES[mode].desc+"。";
+    document.getElementById("rank").innerHTML=`<h3>いま沼に落ちるとしたら</h3><p class="fine">${esc(PICK_MODES[mode].label)}で推しが決まる場合（アイドルはすべて架空です）</p>
+      ${top.map(x=>`<div class="r"><span><span class="mc" style="background:${x.o.hex}"></span>${esc(x.o.name)}<small>${esc(x.o.group)}</small></span><span class="nbar"><i style="width:${(x.p/max*100).toFixed(1)}%"></i></span><em>${pct(x.p)}</em></div>`).join("")}
+      <div class="r other"><span>その他${list.length-top.length}人</span><span></span><em>${pct(rest)}</em></div>`;
+  };
+  app.querySelectorAll("#mode button").forEach(b=>b.onclick=()=>{mode=b.dataset.v;app.querySelectorAll("#mode button").forEach(x=>x.setAttribute("aria-pressed",x===b));showRank()});
+  showRank();
   document.getElementById("go").onclick=()=>{
     const y=+document.getElementById("start").value, a=+document.getElementById("age").value;
-    S={name:document.getElementById("name").value.trim()||"タカシ", startYear:y, startAge:a, spd, rate:1,
+    S={name:document.getElementById("name").value.trim()||"タカシ", startYear:y, startAge:a, spd, mode, rate:1,
        m:-1, acc:0, money:30, clean:45, shin:50, wota:10, sara:0, heat:10, love:0,
-       oshi:null, has:false, cands:[], numa:[], fallCount:0, oshiHist:[], focus:"look", plan:[], epQueue:shuffle(window.EPISODES.map((_,i)=>i)),
+       job:rnd(JOBS), home:rnd(PREFS),
+       oshi:null, has:false, lossUntil:0, fallCount:0, oshiHist:[], stubs:[], focus:"look", plan:[], epQueue:shuffle(window.EPISODES.map((_,i)=>i)),
        rel:{stage:0, her:"", tried:-9}, log:[], hist:[], counts:{good:0,bad:0}, ended:false, queue:[]};
-    newCands();
-    S.oshi=S.cands[0];
     game();
-    addHist("まだ誰のオタクでもない");
     tick(true);
     start();
   };
@@ -316,7 +375,11 @@ function tick(first){
   S.heat=clamp(S.heat+f.heat-.3);
   S.wota=clamp(S.wota-.3);
   S.sara=clamp(S.sara-1);
-  if(!first && !S.has) encounter();
+  if(!S.has){
+    // 最初の月、または推しロス明けに、どこかの現場で次の沼に落ちる（今年の重点より先に見せる）
+    if(S.m>=S.lossUntil && !S.queue.some(f=>f.numa)){ const f=()=>numaDraw(); f.numa=true; S.queue.unshift(f); }
+    else if(!first) lossDay();
+  }
   else if(!first){
     if(month===S.oshi.bday) log(`${S.oshi.name}の生誕祭。${S.oshi.color}のペンライトで会場が染まった。`);
     else if(S.clean<28 && Math.random()<.35) log(rnd(LINES.dirty),"ep");
@@ -337,44 +400,76 @@ function graduate(){
   const old=S.oshi;
   log(`${old.name}が卒業を発表した。頭が真っ白になった。`, "big");
   addHist(`${old.name}が卒業。推しロスになる`);
-  S.has=false; S.heat=clamp(S.heat-40); newCands(old);
+  S.has=false; S.heat=clamp(S.heat-40); S.gradM=S.m; S.lossUntil=S.m+3+Math.floor(Math.random()*5);
 }
 
 /* ===== 沼落ち ===== */
-function newCands(exclude){
-  S.cands=[]; S.numa=[];
-  while(S.cands.length<3){
-    const c=pickOshi(exclude);
-    if(!S.cands.some(x=>x.name===c.name||x.group===c.group)){ S.cands.push(c); S.numa.push(0); }
-  }
+/* 推しロス中の毎月 */
+function lossDay(){
+  const old=S.oshi;
+  if(Math.random()<.45){ log(rnd(["推しロスで、何をしても楽しくない。",`${old.name}の写真フォルダを開いては閉じた。`,"現場のない週末が、こんなに長いとは知らなかった。",`${old.color}のペンライトを引き出しの奥にしまった。`])); return; }
+  log(fillC(rnd(ENCOUNTERS),rnd(ROSTER.filter(o=>o!==old))));
 }
-function encounter(){
-  if(Math.random()<.15){ log(S.fallCount?"推しロスで、何をしても楽しくない。":"休日は家で動画を見て終わった。"); return; }
-  const i=Math.floor(Math.random()*S.cands.length), c=S.cands[i];
-  S.numa[i]=Math.min(100,S.numa[i]+30+Math.floor(Math.random()*30));
-  S.heat=clamp(S.heat+4);
-  log(fillC(rnd(ENCOUNTERS),c));
-  if(S.numa[i]>=100 && !S.queue.some(f=>f.numa)){ const f=()=>numaFall(i); f.numa=true; S.queue.push(f); }
-}
-function numaFall(i){
-  const c=S.cands[i], sc=rnd(FALL_SCENES), again=S.fallCount>0;
+/* 整列 → 入場券の「お目当て」が回って止まる → 沼落ち届 */
+function numaDraw(){
+  const prev=S.oshiHist[S.oshiHist.length-1], o=drawOshi(S.mode,prev);
+  const no=40+Math.floor(Math.random()*260);
+  const t={y:year(), m:mon(), venue:rnd(VENUES), ev:rnd(EVENTS), no:"A-"+no};
+  const reel=shuffle(ROSTER.filter(x=>x!==o)).slice(0,9);
   openSheet(`
-   <div class="numa" style="--mc:${c.hex}">
-     <p class="numa-tag">${year()}年${mon()}月${again?" ・ 二度目の沼":""}</p>
-     <div class="talk">${sc.map(t=>`<p>${esc(fillC(t,c))}</p>`).join("")}<p>心臓が変な音を立てた。</p></div>
-     <p class="numa-big">……落ちた。</p>
-     <div class="numa-card">
-       <span class="dot" style="background:${c.hex}"></span>
-       <div><small>${esc(c.type)}</small><b>${esc(c.group)}　${esc(c.name)}</b><small>メンカラ：${esc(c.color)}</small></div>
+   <div class="entry" id="entry">
+     <p class="call">整列<b id="call">A${Math.max(1,no-26)}〜${no-1}番の方</b></p>
+     <div class="pass">
+       <dl><dt>日付</dt><dd>${t.y}年${t.m}月</dd><dt>会場</dt><dd>${esc(t.venue)}</dd><dt>公演</dt><dd>${esc(t.ev)}</dd><dt>記名</dt><dd>${esc(S.name)}</dd>
+         <dt>お目当て</dt><dd><span class="slot" id="slot">特になし</span></dd></dl>
+       <div class="stub">整理番号<strong id="no">—</strong></div>
      </div>
-     <p class="numa-sub">${esc(S.name)}は、${esc(c.name)}の沼に落ちました。</p>
+     <p class="skip" id="skip">タップでとばす</p>
+   </div>`);
+  const slot=document.getElementById("slot");
+  let k=0, settled=false, spin=null, wait=null;
+  const settle=()=>{
+    if(settled) return; settled=true; clearInterval(spin);
+    slot.textContent=`${o.group}の${o.name}`; slot.classList.add("done");
+    document.getElementById("call").textContent=`A${no}番の方、どうぞ`;
+    document.getElementById("no").textContent=t.no;
+    document.getElementById("skip").textContent="";
+    wait=setTimeout(()=>todoke(o,t,prev),1100);
+  };
+  document.getElementById("entry").onclick=()=>{ if(settled){ clearTimeout(wait); todoke(o,t,prev); } else settle(); };
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) settle();
+  else spin=setInterval(()=>{ const x=reel[k++]; if(!x) return settle(); slot.textContent=`${x.group}の${x.name}`; },230);
+}
+function todoke(o,t,prev){
+  if(card.querySelector(".todoke")) return;
+  const again=S.fallCount>0, nth=S.fallCount+1;
+  const p=odds(S.mode).find(x=>x.o===o).p;
+  const serial=`OSHI-${t.y}-${String(Math.floor(Math.random()*1e7)).padStart(7,"0")}`;
+  const lead=again?`${prev.name}の卒業から${S.m-S.gradM}か月。`:"";
+  const peers=shuffle(PEERS).slice(0,3).map(n=>({n, o:drawOshi(S.mode), age:19+Math.floor(Math.random()*27), job:rnd(JOBS), pref:rnd(PREFS)}));
+  const facts=[["推し",o.name],["所属",o.group],["担当カラー",`<span class="mc" style="background:${o.hex}"></span>${esc(o.color)}`,true],
+    ["特典会",o.toku],["SNSフォロワー",folText(o.fol)+"（架空）"],["誕生日",`${o.bday+1}月${o.bdd}日`],
+    ["活動拠点",o.city],["ジャンル",o.genre],["沼落ちの確率",pct(p)]];
+  openSheet(`
+   <div class="todoke" style="--mc:${o.hex}">
+     <header><span>沼落ち届</span><small>No. ${serial}</small></header>
+     <div class="body">
+       <span class="stamp" aria-hidden="true">${again?`${nth}度目<br>の沼`:"架空<br>推し"}</span>
+       <div class="who"><small>オタク名</small><b>${esc(S.name)}</b></div>
+       <p>${esc(lead)}${t.y}年${t.m}月、${esc(t.venue)}で行われた${esc(t.ev)}で、${esc(o.group)}の${esc(o.name)}に沼落ちしました。${age()}歳の${esc(S.job)}、${esc(S.home)}在住です。</p>
+       <dl class="facts">${facts.map(([k,v,raw])=>`<div><dt>${k}</dt><dd>${raw?v:esc(v)}</dd></div>`).join("")}</dl>
+       <div class="peers"><h4>同じ月に、別の現場で沼に落ちた人たち</h4>
+         <ul>${peers.map(x=>`<li>${esc(x.n)}　<b>${esc(x.o.group)}の${esc(x.o.name)}</b> <small>推し ・ ${x.age}歳・${esc(x.job)}・${esc(x.pref)}</small></li>`).join("")}</ul></div>
+       <p class="fine">「${again?"また推していく":"オタク人生を始める"}」を押すと、入場券がもぎられます。半券は最後まで手元に残ります。このゲームはフィクションです。推しもグループも、すべて架空の存在です。</p>
+     </div>
    </div>
-   <div class="row"><button class="btn" id="ok">${again?"もう一度、オタクとして生きていく":"オタクとして生きていく"}</button></div>`);
+   <div class="row"><button class="btn" id="ok">${again?"また推していく":"オタク人生を始める"}</button><button class="btn ghost" id="redo">推しを選び直す</button></div>`);
+  document.getElementById("redo").onclick=()=>numaDraw();
   document.getElementById("ok").onclick=()=>{
-    S.oshi=c; S.has=true; S.fallCount++; S.oshiHist.push(c);
-    S.heat=clamp(Math.max(S.heat,80)); S.cands=[]; S.numa=[];
-    log(`${c.group}の${c.name}（${c.color}）の沼に落ちた。`,"big");
-    addHist(`${c.group}の${c.name}（${c.color}）の沼に落ちる`);
+    S.oshi=o; S.has=true; S.fallCount++; S.oshiHist.push(o); S.stubs.push({...t, oshi:o});
+    S.heat=clamp(Math.max(S.heat,80));
+    log(`${t.venue}の${t.ev}で、${o.group}の${o.name}（${o.color}）の沼に落ちた。`,"big");
+    addHist(`${t.venue}で${o.group}の${o.name}（${o.color}）の沼に落ちる`);
     done();
   };
 }
@@ -402,20 +497,16 @@ function game(){
 function confirmQuit(){ S.ended=true; return true; }
 function renderCtrl(){ app.querySelectorAll(".ctrl button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.r===S.rate)); }
 function meter(cls,lab,v){return `<div class="meter ${cls}"><b>${lab}<span>${Math.round(v)}</span></b><div class="bar"><i style="width:${v}%"></i></div></div>`}
-function candHtml(){
-  const rel=["","気になる人：","交際中：","婚約中："][S.rel.stage];
-  return `<div class="oshi cands"><div style="width:100%"><small>${S.fallCount?"推しロス中 ・ ":"まだ推しはいない ・ "}気になるアイドル</small>
-    ${S.cands.map((c,i)=>`<div class="cand"><span class="dot sm" style="background:${c.hex}"></span><span class="cn">${esc(c.group)}　${esc(c.name)}</span><span class="nbar"><i style="width:${S.numa[i]}%;background:${c.hex}"></i></span></div>`).join("")}
-    ${S.rel.stage?`<small style="color:var(--gold)">${rel}${esc(S.rel.her)}さん</small>`:""}</div></div>`;
-}
 function render(){
   const top=document.getElementById("top"); if(!top) return;
-  const rel=["","気になる人：","交際中：","婚約中："][S.rel.stage];
+  const rel=["","気になる人：","交際中：","婚約中："][S.rel.stage], o=S.oshi;
+  const relHtml=S.rel.stage?`<small style="color:var(--gold)">${rel}${esc(S.rel.her)}さん</small>`:"";
   top.innerHTML=`
    <div class="clock"><span class="yr">${year()}年 ${mon()}月</span><span class="age">${esc(S.name)} ${age()}歳 ・ ${Math.floor(S.m/12)+1}年目 / ${MAX_YEARS}年 ・ 所持金 <span class="money">${Math.round(S.money)}万円</span></span></div>
    <div class="yearbar"><i id="yb"></i></div>
-   ${S.has?"":candHtml()}
-   <div class="oshi" ${S.has?"":"hidden"}><span class="dot" style="background:${S.oshi.hex}"></span><div><small>推し ・ ${esc(S.oshi.type)}</small><b>${esc(S.oshi.group)}　${esc(S.oshi.name)}</b>${S.rel.stage?`<small style="color:var(--gold)">${rel}${esc(S.rel.her)}さん</small>`:""}</div></div>
+   ${S.has?`<div class="oshi"><span class="dot" style="background:${o.hex}"></span><div><small>推し ・ ${esc(o.type)}</small><b>${esc(o.group)}　${esc(o.name)}</b>${relHtml}</div></div>`
+    :o?`<div class="oshi"><span class="dot lost"></span><div><small>推しロス中 ・ 元推し</small><b>${esc(o.group)}　${esc(o.name)}</b>${relHtml}</div></div>`
+    :`<div class="oshi"><span class="dot lost"></span><div><small>まだ推しはいない</small><b>今夜、どこかの現場で……</b></div></div>`}
    <div class="stats">${meter("m-clean","清潔感",S.clean)}${meter("m-shin","紳士度",S.shin)}${meter("m-wota","ヲタヲタ度",S.wota)}${meter("m-heat","推し熱",S.heat)}${meter("m-sara","晒され度",S.sara)}${meter("m-love","恋愛",S.love)}</div>`;
   document.getElementById("fx").textContent="今年の重点："+FOCUS[S.focus].label;
   document.getElementById("log").innerHTML=S.log.slice(0,80).map((l,i)=>`<li class="${l.cls}${i===0?" new":""}">${l.cls==="y"?`<time></time><span>${esc(l.text)}</span>`:`<time>${l.t}</time><span>${esc(l.text)}</span>`}</li>`).join("");
@@ -577,6 +668,10 @@ function finish(id){
   <div class="panel" style="display:grid;gap:10px">
     <h3 style="font-size:16px">${esc(S.name)}の年表</h3>
     <ul class="hist">${S.hist.map(h=>`<li><time>${h.y}</time><span>${esc(h.text)}</span></li>`).join("")}<li><time>${year()}</time><span>${esc(e.title)}</span></li></ul>
+  </div>
+  <div class="panel" style="display:grid;gap:10px">
+    <h3 style="font-size:16px">手元に残った半券 ${S.stubs.length}枚</h3>
+    ${S.stubs.map(s=>`<div class="pass"><dl><dt>日付</dt><dd>${s.y}年${s.m}月</dd><dt>会場</dt><dd>${esc(s.venue)}（${esc(s.ev)}）</dd><dt>お目当て</dt><dd><span class="mc" style="background:${s.oshi.hex}"></span>${esc(s.oshi.group)}の${esc(s.oshi.name)}</dd></dl><div class="stub">整理番号<strong>${s.no}</strong></div></div>`).join("")}
   </div>
   <div class="panel" style="display:grid;gap:10px">
     <h3 style="font-size:16px">エンディング回収 ${seen.size} / ${ENDINGS.length}</h3>
