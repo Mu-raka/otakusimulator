@@ -85,6 +85,18 @@ details ul{margin:10px 0 0;padding-left:1.2em;display:grid;gap:6px;font-size:14p
 .log li.y span{font-family:var(--f-display);color:var(--pink)}
 .log li.ep span{color:var(--danger)} .log li.good span{color:var(--ok)} .log li.big span{font-weight:700}
 .log li.new{animation:fade .35s ease}
+.oshi.cands .cand{display:grid;grid-template-columns:auto minmax(0,1fr) 30%;gap:8px;align-items:center;font-size:13px;margin-top:4px}
+.oshi .dot.sm{width:14px;height:14px;border-width:1px}
+.cand .cn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nbar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}.nbar i{display:block;height:100%;transition:width .4s ease}
+.numa{display:grid;gap:12px;padding:16px;border-radius:12px;border:2px solid var(--mc);box-shadow:0 0 0 4px color-mix(in srgb,var(--mc) 25%,transparent),0 0 28px color-mix(in srgb,var(--mc) 45%,transparent)}
+.numa-tag{font-family:var(--f-display);font-size:12px;color:var(--muted);letter-spacing:.1em}
+.numa-big{font-family:var(--f-display);font-size:clamp(30px,9vw,44px);line-height:1.2;color:var(--pink);animation:numa 1.2s ease}
+.numa-card{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--bg)}
+.numa-card .dot{width:40px;height:40px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 14px var(--mc)}
+.numa-card div{min-width:0}.numa-card small{display:block;font-size:11px;color:var(--muted)}.numa-card b{font-size:16px}
+.numa-sub{font-size:13px;color:var(--muted)}
+@keyframes numa{0%{opacity:0;transform:translateY(-14px) scale(1.15)}60%{opacity:1}100%{transform:none}}
 /* sheet */
 .sheet{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;z-index:20;
   padding:0 max(0px,env(safe-area-inset-right,0px)) 0 max(0px,env(safe-area-inset-left,0px))}
@@ -129,7 +141,7 @@ details ul{margin:10px 0 0;padding-left:1.2em;display:grid;gap:6px;font-size:14p
 .fade{animation:fade .35s ease}
 @keyframes fade{from{opacity:.2;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
-@media (prefers-reduced-motion:reduce){.fade,.log li.new,.sheet .card{animation:none}.bar i{transition:none}}
+@media (prefers-reduced-motion:reduce){.numa-big,.fade,.log li.new,.sheet .card{animation:none}.bar i{transition:none}}
 @media (max-width:420px){.stats{gap:8px}.meter b{font-size:11px}}
 </style>
 </head>
@@ -175,6 +187,22 @@ const ERA = {
  2023:"声出しが解禁！久しぶりにコールができた。",
  2026:"「推し活」が当たり前の言葉になった。"
 };
+const ENCOUNTERS = [
+ "テレビの歌番組で{group}を見かけた。{name}の笑顔が妙に頭に残る。",
+ "友達に誘われた対バンライブに{group}が出ていた。{name}のダンスから目が離せなかった。",
+ "SNSで{name}の切り抜き動画が流れてきた。気づけば3周見ていた。",
+ "フェスでたまたま{group}のステージを見た。{name}の歌声だけ、やけに耳に残った。",
+ "コンビニのコラボ商品で{group}を知った。{name}の名前を検索してしまう。",
+ "寝る前に{name}のブログを1年分さかのぼって読んでしまった。",
+ "{group}の無料ライブの前を通りかかり、なんとなく最後まで見てしまった。",
+ "会社の後輩に{group}のMVを見せられた。{name}のソロパートで手が止まった。"
+];
+const FALL_SCENES = [
+ ["{group}の定期公演に、初めて一人で行ってみた。","落ちサビ。{name}がこちらを見て、ふっと笑った（気がした）。"],
+ ["{group}の生配信をなんとなく開いた。","{name}が「来てくれてありがとう」と画面越しに言った。自分に言われた気がした。"],
+ ["友達に連れられて、{group}の特典会に並んだ。","{name}が「はじめましてですよね？また来てね」と言った。その声が、帰りの電車でもずっと鳴っていた。"],
+ ["{group}のライブ映像を夜中に見ていた。","MCで泣きながら夢を語る{name}を見て、気づいたら一緒に泣いていた。"]
+];
 const MAX_YEARS = 15;
 
 const ENDINGS = [
@@ -195,6 +223,7 @@ const rnd=a=>a[Math.floor(Math.random()*a.length)];
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 function fill(t,her){return String(t).replaceAll("{oshi}",S.oshi.name).replaceAll("{group}",S.oshi.group).replaceAll("{color}",S.oshi.color).replaceAll("{her}",her||"")}
+function fillC(t,c){return String(t).replaceAll("{group}",c.group).replaceAll("{name}",c.name)}
 function loadSeen(){try{return JSON.parse(localStorage.getItem("wotawota2-seen")||"[]")}catch(e){return[]}}
 function saveSeen(id){try{const s=new Set(loadSeen());s.add(id);localStorage.setItem("wotawota2-seen",JSON.stringify([...s]))}catch(e){}}
 
@@ -212,8 +241,8 @@ function title(){
   const years=[2010,2013,2016,2020,2023,2026];
   app.innerHTML=`
   <div class="panel fade" style="display:grid;gap:16px">
-    <h1 class="logo">女ヲタヲタ<br>シミュレータ<small>〜あるドルオタの15年〜</small></h1>
-    <p>あなたは男性のアイドルオタク。推しはランダムで決まります。時間は勝手に流れ、年に2〜3回、現場で「女ヲタヲタ」な場面が訪れます。</p>
+    <h1 class="logo">女ヲタヲタ<br>シミュレータ<small>〜ある男が沼に落ちてからの15年〜</small></h1>
+    <p>あなたは男性のアイドルオタク。最初はまだ誰のオタクでもありません。いろんなアイドルと出会ううちに、ある日誰かの沼に落ちます。時間は勝手に流れ、年に2〜3回、現場で「女ヲタヲタ」な場面が訪れます。</p>
     <p class="notice">距離感・紳士な態度・清潔感がそろえば、いつか大切な人と出会って結婚であがり。ヲタヲタ行動を重ねると、出禁や界隈追放が待っています。</p>
     <div class="form">
       <div><label for="name">あなたの名前</label><input id="name" type="text" maxlength="12" value="タカシ"></div>
@@ -227,6 +256,7 @@ function title(){
     <details>
       <summary>あそびかた</summary>
       <ul>
+        <li>最初は推しがいません。気になるアイドルとの出会いが重なると「沼ゲージ」がたまり、満タンになった子の沼に落ちます。推しが卒業すると推しロスになり、また次の沼を探します。</li>
         <li>年のはじめに「今年の重点」を選びます。身だしなみに力を入れると清潔感が上がります。</li>
         <li>年に2〜3回、女性オタクとの場面で行動を選びます。距離感のある行動は紳士度が上がり、ヲタヲタな行動はヲタヲタ度と晒され度が上がります。</li>
         <li>ヲタヲタ度が低く、紳士度と清潔感が高いと、出会いが訪れます。交際からプロポーズまで進めば結婚であがりです。</li>
@@ -239,12 +269,13 @@ function title(){
   document.getElementById("go").onclick=()=>{
     const y=+document.getElementById("start").value, a=+document.getElementById("age").value;
     S={name:document.getElementById("name").value.trim()||"タカシ", startYear:y, startAge:a, spd, rate:1,
-       m:-1, acc:0, money:30, clean:45, shin:50, wota:10, sara:0, heat:60, love:0,
-       oshi:pickOshi(), oshiHist:[], focus:"oshi", plan:[], epQueue:shuffle(window.EPISODES.map((_,i)=>i)),
+       m:-1, acc:0, money:30, clean:45, shin:50, wota:10, sara:0, heat:10, love:0,
+       oshi:null, has:false, cands:[], numa:[], fallCount:0, oshiHist:[], focus:"look", plan:[], epQueue:shuffle(window.EPISODES.map((_,i)=>i)),
        rel:{stage:0, her:"", tried:-9}, log:[], hist:[], counts:{good:0,bad:0}, ended:false, queue:[]};
-    S.oshiHist.push(S.oshi);
+    newCands();
+    S.oshi=S.cands[0];
     game();
-    addHist(`${S.oshi.group}の${S.oshi.name}（${S.oshi.color}）推しになる`);
+    addHist("まだ誰のオタクでもない");
     tick(true);
     start();
   };
@@ -285,7 +316,8 @@ function tick(first){
   S.heat=clamp(S.heat+f.heat-.3);
   S.wota=clamp(S.wota-.3);
   S.sara=clamp(S.sara-1);
-  if(!first){
+  if(!first && !S.has) encounter();
+  else if(!first){
     if(month===S.oshi.bday) log(`${S.oshi.name}の生誕祭。${S.oshi.color}のペンライトで会場が染まった。`);
     else if(S.clean<28 && Math.random()<.35) log(rnd(LINES.dirty),"ep");
     else if(Math.random()<.65) log(fill(rnd(Math.random()<.45?LINES[S.focus]:LINES.any)));
@@ -293,7 +325,7 @@ function tick(first){
     if(S.money<-30 && Math.random()<.3){ log("カードの請求額を見て震えた。リボ払いはやめよう。","ep"); }
     if(Math.random()<.008*(1+Math.floor(S.m/12)/3)) graduate();
   }
-  if(S.plan.includes(month)) S.queue.push(()=>episode());
+  if(S.has && S.plan.includes(month)) S.queue.push(()=>episode());
   if(month===7) relationCheck();
   render();
   next();
@@ -304,9 +336,47 @@ function done(){ S.queue.shift(); closeSheet(); render(); next(); if(S.sara>=100
 function graduate(){
   const old=S.oshi;
   log(`${old.name}が卒業を発表した。頭が真っ白になった。`, "big");
-  S.oshi=pickOshi(old); S.oshiHist.push(S.oshi);
-  log(`しばらくして、${S.oshi.group}の${S.oshi.name}（${S.oshi.color}）に推し変した。`, "big");
-  addHist(`${old.name}の卒業。${S.oshi.group}の${S.oshi.name}に推し変`);
+  addHist(`${old.name}が卒業。推しロスになる`);
+  S.has=false; S.heat=clamp(S.heat-40); newCands(old);
+}
+
+/* ===== 沼落ち ===== */
+function newCands(exclude){
+  S.cands=[]; S.numa=[];
+  while(S.cands.length<3){
+    const c=pickOshi(exclude);
+    if(!S.cands.some(x=>x.name===c.name||x.group===c.group)){ S.cands.push(c); S.numa.push(0); }
+  }
+}
+function encounter(){
+  if(Math.random()<.15){ log(S.fallCount?"推しロスで、何をしても楽しくない。":"休日は家で動画を見て終わった。"); return; }
+  const i=Math.floor(Math.random()*S.cands.length), c=S.cands[i];
+  S.numa[i]=Math.min(100,S.numa[i]+30+Math.floor(Math.random()*30));
+  S.heat=clamp(S.heat+4);
+  log(fillC(rnd(ENCOUNTERS),c));
+  if(S.numa[i]>=100 && !S.queue.some(f=>f.numa)){ const f=()=>numaFall(i); f.numa=true; S.queue.push(f); }
+}
+function numaFall(i){
+  const c=S.cands[i], sc=rnd(FALL_SCENES), again=S.fallCount>0;
+  openSheet(`
+   <div class="numa" style="--mc:${c.hex}">
+     <p class="numa-tag">${year()}年${mon()}月${again?" ・ 二度目の沼":""}</p>
+     <div class="talk">${sc.map(t=>`<p>${esc(fillC(t,c))}</p>`).join("")}<p>心臓が変な音を立てた。</p></div>
+     <p class="numa-big">……落ちた。</p>
+     <div class="numa-card">
+       <span class="dot" style="background:${c.hex}"></span>
+       <div><small>${esc(c.type)}</small><b>${esc(c.group)}　${esc(c.name)}</b><small>メンカラ：${esc(c.color)}</small></div>
+     </div>
+     <p class="numa-sub">${esc(S.name)}は、${esc(c.name)}の沼に落ちました。</p>
+   </div>
+   <div class="row"><button class="btn" id="ok">${again?"もう一度、オタクとして生きていく":"オタクとして生きていく"}</button></div>`);
+  document.getElementById("ok").onclick=()=>{
+    S.oshi=c; S.has=true; S.fallCount++; S.oshiHist.push(c);
+    S.heat=clamp(Math.max(S.heat,80)); S.cands=[]; S.numa=[];
+    log(`${c.group}の${c.name}（${c.color}）の沼に落ちた。`,"big");
+    addHist(`${c.group}の${c.name}（${c.color}）の沼に落ちる`);
+    done();
+  };
 }
 
 /* ===== ログ ===== */
@@ -332,13 +402,20 @@ function game(){
 function confirmQuit(){ S.ended=true; return true; }
 function renderCtrl(){ app.querySelectorAll(".ctrl button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.r===S.rate)); }
 function meter(cls,lab,v){return `<div class="meter ${cls}"><b>${lab}<span>${Math.round(v)}</span></b><div class="bar"><i style="width:${v}%"></i></div></div>`}
+function candHtml(){
+  const rel=["","気になる人：","交際中：","婚約中："][S.rel.stage];
+  return `<div class="oshi cands"><div style="width:100%"><small>${S.fallCount?"推しロス中 ・ ":"まだ推しはいない ・ "}気になるアイドル</small>
+    ${S.cands.map((c,i)=>`<div class="cand"><span class="dot sm" style="background:${c.hex}"></span><span class="cn">${esc(c.group)}　${esc(c.name)}</span><span class="nbar"><i style="width:${S.numa[i]}%;background:${c.hex}"></i></span></div>`).join("")}
+    ${S.rel.stage?`<small style="color:var(--gold)">${rel}${esc(S.rel.her)}さん</small>`:""}</div></div>`;
+}
 function render(){
   const top=document.getElementById("top"); if(!top) return;
   const rel=["","気になる人：","交際中：","婚約中："][S.rel.stage];
   top.innerHTML=`
    <div class="clock"><span class="yr">${year()}年 ${mon()}月</span><span class="age">${esc(S.name)} ${age()}歳 ・ ${Math.floor(S.m/12)+1}年目 / ${MAX_YEARS}年 ・ 所持金 <span class="money">${Math.round(S.money)}万円</span></span></div>
    <div class="yearbar"><i id="yb"></i></div>
-   <div class="oshi"><span class="dot" style="background:${S.oshi.hex}"></span><div><small>推し ・ ${esc(S.oshi.type)}</small><b>${esc(S.oshi.group)}　${esc(S.oshi.name)}</b>${S.rel.stage?`<small style="color:var(--gold)">${rel}${esc(S.rel.her)}さん</small>`:""}</div></div>
+   ${S.has?"":candHtml()}
+   <div class="oshi" ${S.has?"":"hidden"}><span class="dot" style="background:${S.oshi.hex}"></span><div><small>推し ・ ${esc(S.oshi.type)}</small><b>${esc(S.oshi.group)}　${esc(S.oshi.name)}</b>${S.rel.stage?`<small style="color:var(--gold)">${rel}${esc(S.rel.her)}さん</small>`:""}</div></div>
    <div class="stats">${meter("m-clean","清潔感",S.clean)}${meter("m-shin","紳士度",S.shin)}${meter("m-wota","ヲタヲタ度",S.wota)}${meter("m-heat","推し熱",S.heat)}${meter("m-sara","晒され度",S.sara)}${meter("m-love","恋愛",S.love)}</div>`;
   document.getElementById("fx").textContent="今年の重点："+FOCUS[S.focus].label;
   document.getElementById("log").innerHTML=S.log.slice(0,80).map((l,i)=>`<li class="${l.cls}${i===0?" new":""}">${l.cls==="y"?`<time></time><span>${esc(l.text)}</span>`:`<time>${l.t}</time><span>${esc(l.text)}</span>`}</li>`).join("");
@@ -406,8 +483,8 @@ function relationCheck(){
     S.rel={stage:0,her:"",tried:yi}; S.love=0; return;
   }
   if(st===0 && yi>=2 && yi-S.rel.tried>=1 && eligible()) S.queue.push(()=>meet());
-  else if(st===1 && yi>S.rel.tried) S.queue.push(()=>dateEv());
-  else if(st===2 && yi>S.rel.tried) S.queue.push(()=>propose());
+  else if(st===1 && yi>S.rel.tried && S.has) S.queue.push(()=>dateEv());
+  else if(st===2 && yi>S.rel.tried && S.has) S.queue.push(()=>propose());
 }
 function loveSheet(place,talk,opts,onPick){
   openSheet(`
